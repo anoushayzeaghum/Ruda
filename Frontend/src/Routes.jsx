@@ -1,21 +1,21 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import DashboardRTWExact from "./components/DashboardRTWExact";
-import RTWMap from "./components/MainMap/RTWMap";
-import GeoDataManager from "./components/MainMap/CRUD/GeoDataManager";
-import Portfolio from "./components/MainMap/Portfolio/Portfolio";
-import RUDADevelopmentPlan from "./components/MainMap/Gantt/RUDADevelopmentPlan";
-import PhaseTwoGanttChart from "./components/MainMap/Gantt/PhaseTwoGanttChart";
-import PCrud from "./components/MainMap/Portfolio/PCrud";
-import HierarchicalDataComponent from "./components/MainMap/Gantt/HierarchicalDataComponent";
-import ProjectMilestone from "./components/MainMap/ProjectMilestone";
-import Login from "./components/Auth/Login";
-import Register from "./components/Auth/Register";
-import ProtectedRoute from "./components/Auth/ProtectedRoute";
-import OngoingProjects from "./components/MainMap/OngoingProjects";
-import OverallSummary from "./components/MainMap/OverallSummary";
-import ProgressUpdate from "./components/MainMap/ProgressUpdate";
-import Dashboard from "./components/Dashboard/Dashboard";
+import DashboardRTWExact from "./pages/RTWMap/DashboardRTW";
+import RTWMap from "./pages/RTWMap/DashboardRTW";
+import Portfolio from "./pages/Portfolio/Portfolio";
+import RUDADevelopmentPlan from "./pages/Gantt/RUDADevelopmentPlan";
+import PhaseTwoGanttChart from "./pages/Gantt/PhaseTwoGanttChart";
+import PCrud from "./pages/Portfolio/PCrud";
+import HierarchicalDataComponent from "./pages/Gantt/HierarchicalDataComponent";
+import ProjectMilestone from "./pages/Summary/ProjectMilestone";
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
+import ProtectedRoute from "./pages/Auth/ProtectedRoute";
+import OngoingProjects from "./pages/Summary/OngoingProjects";
+import OverallSummary from "./pages/Summary/OverallSummary";
+import ProgressUpdate from "./pages/Summary/ProgressUpdate";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import GeoDataManager from "./pages/CRUD/GeoDataManager";
 
 const AppRoutes = () => {
   return (

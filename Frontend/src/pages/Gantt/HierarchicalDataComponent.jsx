@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import HeaderButtons from "../../Dashboard/DashboardHeader/HeaderButtons";
+import HeaderButtons from "../Dashboard/DashboardHeader/HeaderButtons";
 /**
  * RUDA Development Plan – Timeline (Updated Design)
  * Matches the design from the provided image

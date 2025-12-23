@@ -26,11 +26,11 @@ import {
   Waves,
   TrendingUp,
 } from "lucide-react";
-import "../../../Portfolio.css";
+import "./Portfolio.css";
 import styles from "./styles";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import ProjectMilestone from "../ProjectMilestone";
+import ProjectMilestone from "../Summary/ProjectMilestone";
 import priorityData from "./portfolioPriorityData.json";
 
 const API_URL = "https://ruda-planning.onrender.com/api/portfoliocrud/";

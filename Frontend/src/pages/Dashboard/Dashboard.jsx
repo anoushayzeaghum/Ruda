@@ -7,7 +7,7 @@ import DashboardMap from "./DashboardLayout/LayoutComponent/DashboardMap";
 import RudaStatistics from "./DashboardLayout/LayoutComponent/RudaStatistics";
 import Popups from "./DashboardLayout/LayoutComponent/Popups";
 import * as turf from "@turf/turf";
-import ProposedRoadsLayer from "../MainMap/ProposedRoadsLayer";
+import ProposedRoadsLayer from "../Summary/ProposedRoadsLayer";
 import "./Dashboard.css";
 
 const Dashboard = () => {

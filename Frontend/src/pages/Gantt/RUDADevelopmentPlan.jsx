@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import LogManager from "../LogManager";
+// import LogManager from "../LogManager";
 // Updated CSS styles embedded in component
 const styles = `
 .ruda-container {
