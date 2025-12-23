@@ -1,0 +1,53 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [74.42816463487841, 31.60511940276718, 0],
+            [74.42911325811025, 31.60507112911306, 0],
+            [74.4310823805477, 31.60507991411032, 0],
+            [74.43189131408481, 31.60506919154328, 0],
+            [74.432022352042, 31.60553765001642, 0],
+            [74.43221680962786, 31.60566741903911, 0],
+            [74.4326873457077, 31.60626628991639, 0],
+            [74.43272988820875, 31.60661022427158, 0],
+            [74.43348336949451, 31.6065467287867, 0],
+            [74.43537008819807, 31.60634978997708, 0],
+            [74.43549291686601, 31.60725743896654, 0],
+            [74.43539792931631, 31.60820709331392, 0],
+            [74.43535578554018, 31.60964395360335, 0],
+            [74.4353256042613, 31.61094718772692, 0],
+            [74.43377509891523, 31.61088303281184, 0],
+            [74.4337289384173, 31.61113586283752, 0],
+            [74.43303138006061, 31.61117096227234, 0],
+            [74.42758046122815, 31.61124690892632, 0],
+            [74.42748925414257, 31.60746291664827, 0],
+            [74.42560641590629, 31.60747594798948, 0],
+            [74.42631557224311, 31.60645506060185, 0],
+            [74.4267247457606, 31.60659296341424, 0],
+            [74.42742761636724, 31.60659611589585, 0],
+            [74.4274285805078, 31.60643857029989, 0],
+            [74.42817337505167, 31.60642758386063, 0],
+            [74.42816463487841, 31.60511940276718, 0]
+          ]
+        ]
+      },
+      "properties": {
+        "name": "0",
+        "styleUrl": "#PolyStyle00",
+        "styleHash": "-178cf846",
+        "description": "<html xmlns:fo=\"http://www.w3.org/1999/XSL/Format\" xmlns:msxsl=\"urn:schemas-microsoft-com:xslt\">\n\n<head>\n\n<META http-equiv=\"Content-Type\" content=\"text/html\">\n\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n\n</head>\n\n<body style=\"margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;\">\n\n<table style=\"font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px\">\n\n<tr style=\"text-align:center;font-weight:bold;background:#9CBCE2\">\n\n<td>0</td>\n\n</tr>\n\n<tr>\n\n<td>\n\n<table style=\"font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px\">\n\n<tr>\n\n<td>FID</td>\n\n<td>0</td>\n\n</tr>\n\n<tr bgcolor=\"#D4E4F3\">\n\n<td>Id</td>\n\n<td>0</td>\n\n</tr>\n\n</table>\n\n</td>\n\n</tr>\n\n</table>\n\n</body>\n\n</html>\n\n",
+        "stroke": "#ffff00",
+        "stroke-opacity": 1,
+        "stroke-width": 4,
+        "fill": "#ffffff",
+        "fill-opacity": 0
+      },
+      "id": "ID_00000"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.24129632098597,
+          31.55763063119954,
+          0
+        ]
+      },
+      "properties": {
+        "name": "M2 Toll Plaza",
+        "styleUrl": "#m_ylw-pushpin",
+        "styleHash": "-5bd746ca",
+        "styleMapHash": {
+          "normal": "#s_ylw-pushpin",
+          "highlight": "#s_ylw-pushpin_hl"
+        }
+      }
+    }
+  ]
+}

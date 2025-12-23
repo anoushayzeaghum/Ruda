@@ -1,0 +1,114 @@
+
+.ruda-container {
+    width: 100%;
+    overflow-x: auto;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+  }
+  
+  .ruda-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1e3a5f;
+    color: white;
+    padding: 12px 20px;
+    margin-bottom: 0;
+  }
+  
+  .ruda-title {
+    font-weight: bold;
+    font-size: 20px;
+    margin: 0;
+  }
+  
+  .ruda-logo {
+    color: #c0c0c0;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  
+  .ruda-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 1400px;
+  }
+  
+  .ruda-header {
+    background-color: #1e3a5f;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 8px 4px;
+    border: 1px solid #2c4a6b;
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  .ruda-month-header {
+    background-color: #1e3a5f;
+    color: white;
+    font-size: 9px;
+    padding: 4px 1px;
+    border: 1px solid #2c4a6b;
+    text-align: center;
+  }
+  
+  .ruda-phase-header {
+    background-color: #4a4a4a;
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+    padding: 6px 8px;
+    border: 1px solid #5a5a5a;
+    text-align: left;
+  }
+  
+  .ruda-cell {
+    padding: 4px 8px;
+    font-size: 11px;
+    border: 1px solid #ddd;
+    background-color: white;
+    text-align: left;
+  }
+  
+  .ruda-bold {
+    font-weight: bold;
+  }
+  
+  .ruda-timeline-cell {
+    position: relative;
+    height: 20px;
+    border: 1px solid #ddd;
+    background-color: white;
+  }
+  
+  .ruda-bar {
+    position: absolute;
+    height: 14px;
+    background-color: #4caf50;
+    border-radius: 2px;
+  }
+  
+  .ruda-total-cell {
+    background-color: #1e3a5f;
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+    padding: 8px 6px;
+    border: 1px solid #2c4a6b;
+    text-align: center;
+  }
+  
+  .right {
+    text-align: right;
+  }
+  
+  .indent {
+    padding-left: 12px;
+  }
+  
