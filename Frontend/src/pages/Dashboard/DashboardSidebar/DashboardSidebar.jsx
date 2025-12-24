@@ -303,30 +303,6 @@ const DashboardSidebar = ({
           marginBottom: "25px",
         }}
       >
-        {/* Dashboard Button */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            cursor: "pointer",
-            padding: "8px 10px",
-            borderRadius: "6px",
-            transition: "0.2s",
-            color: "#fff",
-            fontSize: "0.9rem",
-          }}
-          onClick={() => (window.location.href = "/")}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          <Home size={18} /> Dashboard
-        </div>
-
         {/* 🔹 NEW: Ruda Boundaries dropdown */}
         <div>
           <div
@@ -698,52 +674,6 @@ const DashboardSidebar = ({
               }
             >
               <Route size={18} /> Proposed Roads
-            </div>
-
-            {/* 🔹 Available Land (below Proposed Roads) */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                cursor: "pointer",
-                padding: "8px 10px",
-                borderRadius: "6px",
-                transition: "0.2s",
-              }}
-              onClick={() => (window.location.href = "/available-land")}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor =
-                  "rgba(255,255,255,0.1)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "transparent")
-              }
-            >
-              <Landmark size={18} /> Available Land
-            </div>
-
-            {/* RTW Dashboard Button */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                cursor: "pointer",
-                padding: "8px 10px",
-                borderRadius: "6px",
-                transition: "0.2s",
-              }}
-              onClick={() => (window.location.href = "/rtw-dashboard")}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor =
-                  "rgba(255,255,255,0.1)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "transparent")
-              }
-            >
-              <LayoutDashboard size={18} /> RTW Dashboard
             </div>
           </div>
         </div>

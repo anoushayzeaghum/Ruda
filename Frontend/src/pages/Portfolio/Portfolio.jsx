@@ -25,6 +25,7 @@ import {
   Route,
   Waves,
   TrendingUp,
+  Star,
 } from "lucide-react";
 import "./Portfolio.css";
 import styles from "./styles";
@@ -32,6 +33,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import ProjectMilestone from "../Summary/ProjectMilestone";
 import priorityData from "./portfolioPriorityData.json";
+import HeaderButtons from "../Dashboard/DashboardHeader/HeaderButtons";
 
 const API_URL = "https://ruda-planning.onrender.com/api/portfoliocrud/";
 
@@ -170,7 +172,7 @@ const Portfolio = () => {
   };
   const isMobile = useMobileView();
 
-  if (loading) return <div style={{ padding: 16 }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 16 }}></div>;
   if (err || !row) return <div style={{ padding: 16 }}>{err || "No data"}</div>;
 
   // Select source: live row or priorityData when toggle is ON
@@ -184,48 +186,16 @@ const Portfolio = () => {
   // Map DB values -> chart structures safely
   const developmentData = usePriority
     ? [
-        {
-          name: "River Training",
-          value: 22,
-          color: "#2196f3",
-        },
-        {
-          name: "Barrage & Dam",
-          value: 22,
-          color: "#f55098",
-        },
-        {
-          name: "Infrastructure",
-          value: 30,
-          color: "#336819",
-        },
-        {
-          name: "SWM & WWTP",
-          value: 26,
-          color: "#ff9800",
-        },
+        { name: "River Training", value: 22, color: "#2196f3" },
+        { name: "Barrage & Dam", value: 22, color: "#f55098" },
+        { name: "Infrastructure", value: 30, color: "#336819" },
+        { name: "SWM & WWTP", value: 26, color: "#ff9800" },
       ]
     : [
-        {
-          name: "River Training",
-          value: 15,
-          color: "#2196f3",
-        },
-        {
-          name: "Barrage & Dam",
-          value: 20,
-          color: "#f55098",
-        },
-        {
-          name: "Infrastructure",
-          value: 40,
-          color: "#336819",
-        },
-        {
-          name: "SWM & WWTP",
-          value: 25,
-          color: "#ff9800",
-        },
+        { name: "River Training", value: 15, color: "#2196f3" },
+        { name: "Barrage & Dam", value: 20, color: "#f55098" },
+        { name: "Infrastructure", value: 40, color: "#336819" },
+        { name: "SWM & WWTP", value: 25, color: "#ff9800" },
       ];
 
   // Use priority file's yearly expenditure if priority is ON, otherwise use row
@@ -241,6 +211,7 @@ const Portfolio = () => {
         { year: "FY25-26", amount: num(row.exp_fy25_26_b) },
         { year: "FY26-27", amount: num(row.exp_fy26_27_b) },
       ];
+
   const totalSpent = expenditureData
     .reduce((s, i) => s + num(i.amount), 0)
     .toFixed(1);
@@ -275,64 +246,90 @@ const Portfolio = () => {
     src.budget_expenditure_till_date_b || row.budget_expenditure_till_date_b
   );
 
+  // ✅ Header style EXACTLY like OngoingProjects.jsx
+  const headerStyle = {
+    background:
+      "radial-gradient(farthest-side ellipse at 20% 0, #333867 40%, #23274b)",
+    color: "white",
+    padding: "15px 15px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+    marginBottom: "15px",
+  };
+
+  // ✅ Buttons to sit with HeaderButtons group (no screen-size/layout changes)
+  const smallHeaderBtnStyle = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+    padding: "6px 10px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontWeight: 600,
+    fontSize: "13px",
+    userSelect: "none",
+    border: "1px solid rgba(255,255,255,0.18)",
+    background: "rgba(255,255,255,0.08)",
+    color: "#fff",
+  };
+
+  const priorityBtnStyle = {
+    ...smallHeaderBtnStyle,
+    background: usePriority
+      ? "rgba(21, 194, 38, 0.468)"
+      : "rgba(204, 33, 33, 0.719)",
+    border: usePriority
+      ? "1px solid rgba(21, 194, 38, 0.468)"
+      : "1px solid rgba(204, 33, 33, 0.719)",
+  };
+
   return (
     <div style={styles.container}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          width: "100%",
-          marginBottom: 16,
-        }}
-      >
-        <div
-          onClick={handleDownloadPDF}
-          title="Print"
-          style={{ cursor: "pointer", padding: 6 }}
-        >
-          <Printer size={22} style={{ color: "#333" }} />
-        </div>
-
-        <h1
-          style={{ ...styles.title, margin: 0, textAlign: "center", flex: 1 }}
-        >
-          {src.title || row.title || "RUDA DEVELOPMENT PORTFOLIO"}
-        </h1>
-
-        <div style={{ display: "flex", gap: "8px" }}>
-          <div
-            onClick={() => (window.location.href = "/")}
-            title="Home"
+      {/* Header (NOW matches OngoingProjects.jsx and uses HeaderButtons.jsx) */}
+      <div style={headerStyle}>
+        <div>
+          <h1
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "6px 12px",
-              borderRadius: 6,
-              background: "#2196f3",
-              color: "#ffffff",
-              cursor: "pointer",
-              fontWeight: 600,
+              margin: 0,
+              fontWeight: 100,
+              fontSize: "1.5rem",
+              color: "#fff",
             }}
           >
-            Home
-          </div>
+            {src.title || row.title || "RUDA DEVELOPMENT PORTFOLIO"}
+          </h1>
+        </div>
+
+        {/* Right: HeaderButtons + (Print + Priority) */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <HeaderButtons />
+
+          <Printer
+            size={22}
+            color="white"
+            style={{
+              cursor: "pointer",
+              marginLeft: "10px",
+              marginRight: "10px",
+              transition: "transform 0.2s ease, color 0.2s ease",
+            }}
+            title="Print"
+            onClick={handleDownloadPDF}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "scale(1.1)")
+            }
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          />
+
           <div
             onClick={() => setUsePriority(!usePriority)}
             title="Priority"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "6px 12px",
-              borderRadius: 6,
-              background: usePriority ? "#10b981" : "#e93131",
-              color: usePriority ? "#fff" : "#ffffff",
-              cursor: "pointer",
-              fontWeight: 600,
-            }}
+            style={priorityBtnStyle}
           >
+            <Star size={16} />
             Priority
           </div>
         </div>
@@ -369,13 +366,11 @@ const Portfolio = () => {
           onClick={() => {
             window.location.href = "/milestones";
             setTimeout(() => {
-              // Optional: trigger a resize event for full map view if needed
               window.dispatchEvent(new Event("resize"));
             }, 300);
           }}
           title="Click to view full Project Milestones map"
         >
-          {/* <h2 style={styles.cardTitle}>PROJECT MILESTONE</h2> */}
           <div style={{ width: "100%", height: "400px", overflow: "hidden" }}>
             <ProjectMilestone />
           </div>
@@ -407,7 +402,6 @@ const Portfolio = () => {
                     `${name}: ${(percent * 100).toFixed(0)}%`
                   }
                   onClick={(data) => {
-                    // Navigate to hierarchical-gantt with specific category and priority filter
                     const categoryName = data.name;
                     let searchQuery = "";
 
@@ -421,7 +415,6 @@ const Portfolio = () => {
                       searchQuery = "Infrastructure";
                     }
 
-                    // Add priority filter if priority mode is active
                     const priorityParam = usePriority ? "&filter=priority" : "";
                     const searchParam = searchQuery
                       ? `&search=${encodeURIComponent(searchQuery)}`
@@ -496,9 +489,9 @@ const Portfolio = () => {
           <div
             style={{
               display: "flex",
-              flexDirection: "row", // horizontal
-              alignItems: "center", // vertical alignment
-              justifyContent: "center", // 👈 center horizontally
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
               gap: "20px",
               padding: "20px 0",
             }}
@@ -514,6 +507,7 @@ const Portfolio = () => {
               color="#4caf50"
             />
           </div>
+
           <div style={styles.timelineContainer}>
             <div style={styles.timelineDuration}>
               <span style={styles.durationLabel}>DURATION</span>
@@ -526,6 +520,7 @@ const Portfolio = () => {
                 </span>
               </div>
             </div>
+
             <div style={styles.timelineYears}>
               <span>
                 {usePriority
@@ -543,10 +538,12 @@ const Portfolio = () => {
                   : row.timeline_end_label || ""}
               </span>
             </div>
+
             <div style={styles.timelineBar}>
               <div style={styles.timelineElapsed} />
               <div style={styles.timelineRemaining} />
             </div>
+
             <div style={styles.timelineLegend}>
               <div style={styles.legendItem}>
                 <div
@@ -591,6 +588,7 @@ const Portfolio = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
+
           <div style={styles.customLegend}>
             {financialData.map((item, index) => (
               <div key={index} style={styles.legendItem}>
@@ -677,6 +675,7 @@ const Portfolio = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
+
           <div
             style={{
               textAlign: "right",

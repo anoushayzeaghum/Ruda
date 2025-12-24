@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import HeaderButtons from "../Dashboard/DashboardHeader/HeaderButtons";
+
 // Updated CSS styles embedded in component
 const styles = `
 .ruda-container {
@@ -19,16 +21,18 @@ const styles = `
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #1e3a5f;
+          background: radial-gradient(farthest-side ellipse at 20% 0, #333867 40%, #23274b);
     color: white;
-    padding: 12px 20px;
+    padding: 18px 20px;
     margin-bottom: 0;
   }
   
   .ruda-title {
-    font-weight: bold;
-    font-size: 20px;
     margin: 0;
+    font-weight: 100;
+    font-size: 1.5rem;
+    color: #fff;
+    text-transform: uppercase;
   }
   
   .ruda-logo {
@@ -49,7 +53,7 @@ const styles = `
   }
   
   .ruda-header {
-    background: linear-gradient(135deg, #1e3a5f 0%, #2c4a6b 100%);
+          background:  #23274b;
     color: white;
     font-weight: bold;
     font-size: 13px;
@@ -109,7 +113,7 @@ const styles = `
   }
   
   .ruda-month-header {
-    background-color: #1e3a5f;
+    background-color: #23274b;
     color: white;
     font-size: 9px;
     padding: 4px 1px;
@@ -348,7 +352,7 @@ const styles = `
   }
   
   .ruda-total-cell {
-    background-color: #1e3a5f;
+    background-color: #23274b;
     color: white;
     font-weight: bold;
     font-size: 13px;
@@ -374,7 +378,7 @@ const styles = `
 
   .ruda-selected-info h3 {
     margin: 0 0 12px 0;
-    color: #1e3a5f;
+    color: #23274b;
     font-size: 18px;
     font-weight: bold;
     text-shadow: 0 1px 2px rgba(0,0,0,0.1);
@@ -2083,9 +2087,7 @@ const PhaseTwoGanttChart = () => {
     <div className="ruda-container">
       <div className="ruda-header-container">
         <h1 className="ruda-title">RUDA DEVELOPMENT PLAN - TIMELINE</h1>
-        <div className="ruda-logo" onClick={() => (window.location.href = "/")}>
-          HOME
-        </div>
+        <HeaderButtons />
       </div>
       <div className="ruda-content">
         <div style={{ position: "relative" }}>

@@ -43,11 +43,6 @@ const HeaderButtons = () => {
       name: "Progress Update",
       onClick: () => (window.location.href = "/progress-update"),
     },
-    {
-      name: "Proposed Roads",
-      onClick: () =>
-        window.dispatchEvent(new CustomEvent("toggleProposedRoads")),
-    },
   ];
 
   return (
@@ -84,7 +79,7 @@ const HeaderButtons = () => {
               borderRadius: "8px",
               boxShadow: "0 0px 4px 4px #2d327139",
               padding: "8px 0",
-              zIndex: 100,
+              zIndex: 10000,
               backdropFilter: "blur(8px)",
               minWidth: "180px",
             }}
@@ -121,7 +116,7 @@ const HeaderButtons = () => {
         )}
       </div>
 
-      <Settings size={22} style={{ cursor: "pointer" }} title="Settings" />
+      {/* <Settings size={22} style={{ cursor: "pointer" }} title="Settings" /> */}
 
       <Power
         size={22}

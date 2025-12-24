@@ -13,6 +13,7 @@ const baseStyles = {
 };
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
+
 const DashboardMap = ({
   features = [],
   colorMap = {},
@@ -24,7 +25,7 @@ const DashboardMap = ({
   const mapRef = useRef(null);
   const [baseStyleKey, setBaseStyleKey] = useState("Streets");
 
-  // initialize map once with transparent (empty) style
+  // initialize map once
   useEffect(() => {
     if (mapRef.current) return;
 
@@ -36,7 +37,6 @@ const DashboardMap = ({
       attributionControl: false,
     });
 
-    // expose for other components (Popups) to access the instance
     window.__DASHBOARD_MAP__ = mapRef.current;
 
     return () => {
@@ -53,23 +53,23 @@ const DashboardMap = ({
     const map = mapRef.current;
     if (!map) return;
 
-    const center = map.getCenter();
-    const zoom = map.getZoom();
+    const currCenter = map.getCenter();
+    const currZoom = map.getZoom();
 
     map.once("style.load", () => {
-      map.setCenter(center);
-      map.setZoom(zoom);
+      map.setCenter(currCenter);
+      map.setZoom(currZoom);
     });
 
     map.setStyle(baseStyles[baseStyleKey]);
   }, [baseStyleKey]);
 
-  // Proposed roads state: listen for toggle event and fetch on first show
+  // Proposed roads state
   const proposedRef = useRef({ data: null, visible: false });
 
-  // Ruda boundaries (Lahore, Sheikhupura, RTW)
+  // Ruda boundaries
   const boundaryRef = useRef({
-    selection: null, // last selection from sidebar
+    selection: null,
     lahore: { data: null },
     sheikhupura: { data: null },
     rtw: { data: null },
@@ -95,7 +95,6 @@ const DashboardMap = ({
 
       if (!map) return;
 
-      // ensure source exists
       if (!map.getSource("proposed-roads")) {
         map.addSource("proposed-roads", {
           type: "geojson",
@@ -147,7 +146,6 @@ const DashboardMap = ({
           },
         });
 
-        // click popup similar to ProposedRoadsLayer
         map.on("click", "proposed-roads-line", (e) => {
           const feature = e.features && e.features[0];
           const layerName = feature?.properties?.layer || "Proposed Road";
@@ -180,12 +178,11 @@ const DashboardMap = ({
     return () => window.removeEventListener("toggleProposedRoads", onToggle);
   }, []);
 
-  // Ruda Boundaries layers (Lahore, Sheikhupura, RTW)
+  // Ruda Boundaries layers
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    // Fetch each boundary GeoJSON only once
     const fetchOnce = async (key, url) => {
       const bucket = boundaryRef.current[key];
       if (!bucket.data) {
@@ -196,7 +193,6 @@ const DashboardMap = ({
       return boundaryRef.current[key].data;
     };
 
-    // Create / update source + FILL + LINE layers
     const ensureSourceAndLayers = async (key, url, fillColor) => {
       const map = mapRef.current;
       if (!map) return;
@@ -206,12 +202,8 @@ const DashboardMap = ({
       const fillId = `${key}-boundary-fill`;
       const lineId = `${key}-boundary-line`;
 
-      // Source
       if (!map.getSource(sourceId)) {
-        map.addSource(sourceId, {
-          type: "geojson",
-          data,
-        });
+        map.addSource(sourceId, { type: "geojson", data });
       } else {
         map.getSource(sourceId).setData(data);
       }
@@ -220,39 +212,27 @@ const DashboardMap = ({
         ? "ruda-dashboard-fill"
         : undefined;
 
-      // FILL layer
       if (!map.getLayer(fillId)) {
         map.addLayer(
           {
             id: fillId,
             type: "fill",
             source: sourceId,
-            layout: {
-              visibility: "none",
-            },
-            paint: {
-              "fill-color": fillColor,
-              "fill-opacity": 0.25,
-            },
+            layout: { visibility: "none" },
+            paint: { "fill-color": fillColor, "fill-opacity": 0.25 },
           },
           beforeId
         );
       }
 
-      // OUTLINE layer
       if (!map.getLayer(lineId)) {
         map.addLayer(
           {
             id: lineId,
             type: "line",
             source: sourceId,
-            layout: {
-              visibility: "none",
-            },
-            paint: {
-              "line-color": fillColor,
-              "line-width": 1.5,
-            },
+            layout: { visibility: "none" },
+            paint: { "line-color": fillColor, "line-width": 1.5 },
           },
           beforeId
         );
@@ -273,120 +253,100 @@ const DashboardMap = ({
         order = ["lahore", "sheikhupura", "rtw"],
       } = state;
 
-      // Ensure layers exist for the ones we want visible
-      if (lahore) {
+      if (lahore)
         await ensureSourceAndLayers(
           "lahore",
           "/geojson/Lahore.geojson",
-          "#284a28"
+          "#3c603c"
         );
-      }
-      if (sheikhupura) {
+      if (sheikhupura)
         await ensureSourceAndLayers(
           "sheikhupura",
           "/geojson/Sheikhupura.geojson",
-          "#ba0000"
+          "#c22424"
         );
-      }
-      if (rtw) {
+      if (rtw)
         await ensureSourceAndLayers("rtw", "/geojson/River.geojson", "#122460");
-      }
 
-      // Toggle visibility according to selection
       const flags = { lahore, sheikhupura, rtw };
       ["lahore", "sheikhupura", "rtw"].forEach((key) => {
         const visible = flags[key];
         const fillId = `${key}-boundary-fill`;
         const lineId = `${key}-boundary-line`;
-        if (map.getLayer(fillId)) {
+        if (map.getLayer(fillId))
           map.setLayoutProperty(
             fillId,
             "visibility",
             visible ? "visible" : "none"
           );
-        }
-        if (map.getLayer(lineId)) {
+        if (map.getLayer(lineId))
           map.setLayoutProperty(
             lineId,
             "visibility",
             visible ? "visible" : "none"
           );
-        }
       });
 
-      // Enforce ordering: Lahore & Sheikhupura below RTW,
-      // and ALL boundaries below the Layer Filters (ruda-dashboard-fill)
       const beforeId = map.getLayer("ruda-dashboard-fill")
         ? "ruda-dashboard-fill"
         : undefined;
-
       if (beforeId) {
         (order || ["lahore", "sheikhupura", "rtw"]).forEach((key) => {
           if (!flags[key]) return;
           const fillId = `${key}-boundary-fill`;
           const lineId = `${key}-boundary-line`;
-          if (map.getLayer(fillId)) {
-            map.moveLayer(fillId, beforeId);
-          }
-          if (map.getLayer(lineId)) {
-            map.moveLayer(lineId, beforeId);
-          }
+          if (map.getLayer(fillId)) map.moveLayer(fillId, beforeId);
+          if (map.getLayer(lineId)) map.moveLayer(lineId, beforeId);
         });
       }
 
-      // 🔹 Zoom to selected boundaries
       const visibleKeys = Object.entries(flags)
         .filter(([, v]) => v)
         .map(([k]) => k);
 
       if (visibleKeys.length) {
         const allCoords = [];
-
         visibleKeys.forEach((key) => {
-          const bucket = boundaryRef.current[key];
-          const data = bucket?.data;
+          const data = boundaryRef.current[key]?.data;
           if (!data) return;
-
           const feats =
             data.type === "FeatureCollection" ? data.features : [data];
-
-          feats.forEach((feat) => {
-            allCoords.push(...getCoordinatesFlat(feat.geometry));
-          });
+          feats.forEach((feat) =>
+            allCoords.push(...getCoordinatesFlat(feat.geometry))
+          );
         });
 
         if (allCoords.length) {
           const lons = allCoords.map((c) => c[0]);
           const lats = allCoords.map((c) => c[1]);
-          const minLon = Math.min(...lons);
-          const maxLon = Math.max(...lons);
-          const minLat = Math.min(...lats);
-          const maxLat = Math.max(...lats);
-
-          map.fitBounds([minLon, minLat, maxLon, maxLat], {
-            padding: 40,
-            duration: 500,
-          });
+          map.fitBounds(
+            [
+              Math.min(...lons),
+              Math.min(...lats),
+              Math.max(...lons),
+              Math.max(...lats),
+            ],
+            {
+              padding: 40,
+              duration: 500,
+            }
+          );
         }
       }
     };
 
-    // Handle events coming from DashboardSidebar
     const onBoundaryChange = (e) => {
       const detail = e.detail || {};
-      boundaryRef.current.selection = detail; // remember last choice
+      boundaryRef.current.selection = detail;
       applyState(detail);
     };
 
     window.addEventListener("rudaBoundariesChange", onBoundaryChange);
 
-    // Re-apply current boundaries after a basemap style change
     const reapplyOnStyleLoad = () => {
-      if (boundaryRef.current.selection) {
+      if (boundaryRef.current.selection)
         applyState(boundaryRef.current.selection);
-      }
     };
-
     map.on("style.load", reapplyOnStyleLoad);
 
     return () => {
@@ -405,17 +365,14 @@ const DashboardMap = ({
       return selectedNames.includes(f.properties?.name);
     });
 
-    // Enrich features with normalized popup title and precomputed area (sq.km)
     const enriched = (filtered || []).map((feat) => {
       const props = feat.properties || {};
       const title =
         props.ruda_phase || props.name || props.Name || props.map_name || "";
       let areaSqKm = null;
       try {
-        if (feat && feat.geometry) {
-          areaSqKm = turf.area(feat) / 1000000; // convert m^2 to km^2
-        }
-      } catch (err) {
+        if (feat && feat.geometry) areaSqKm = turf.area(feat) / 1000000;
+      } catch {
         areaSqKm = null;
       }
 
@@ -447,20 +404,15 @@ const DashboardMap = ({
       };
     });
 
-    const geojson = {
-      type: "FeatureCollection",
-      features: enriched,
-    };
+    const geojson = { type: "FeatureCollection", features: enriched };
 
     const upsert = () => {
       try {
-        // add or update source
         if (map.getSource("ruda-dashboard")) {
           map.getSource("ruda-dashboard").setData(geojson);
         } else {
           map.addSource("ruda-dashboard", { type: "geojson", data: geojson });
 
-          // fill
           if (!map.getLayer("ruda-dashboard-fill")) {
             map.addLayer({
               id: "ruda-dashboard-fill",
@@ -471,17 +423,20 @@ const DashboardMap = ({
                 "fill-opacity": 0.6,
               },
             });
-            // click behavior: show detailed popup with links and metrics (similar to MainMap MapView)
+
             map.on("click", "ruda-dashboard-fill", (e) => {
               const feature = e.features && e.features[0];
               if (!feature) return;
+
               const props = feature.properties || {};
               const name =
                 props.__name || props.name || props.__popupTitle || "Unnamed";
+
               const area =
                 parseFloat(
                   props.__areaSqKm ?? props.area_sqkm ?? props.area ?? 0
                 ) || 0;
+
               const landPct =
                 props.__landAvailablePct ??
                 props.land_available_pct ??
@@ -493,81 +448,85 @@ const DashboardMap = ({
                 props.physical_actual ??
                 0;
 
-              // 🔹 NEW: better project / package / phase detection
+              // ✅ FIX: Use the SAME identifier as MapView used for /map and /details:
+              // always prefer the actual parcel feature "name"
+              const selectedForLinks =
+                props.name || props.__name || props.__popupTitle || name;
+
+              // Keep your current logic for Physical Progress (selectedParam) unchanged
               const isProject = !!props.__category && !!props.__name;
               const isPackage = !!props.__package && !props.__category;
 
               let selectedParam;
-              if (isProject) {
-                selectedParam = name;
-              } else if (isPackage) {
-                selectedParam = props.__package || name;
-              } else {
-                selectedParam = props.__phase || name;
-              }
+              if (isProject) selectedParam = name;
+              else if (isPackage) selectedParam = props.__package || name;
+              else selectedParam = props.__phase || name;
 
               const popupHTML = `
-  <div style="font-family: 'Segoe UI', sans-serif; min-width:180px; ">
-    <h3 style="margin:0 0 8px; font-size:12px; color:#606162;">${name}</h3>
-    <div style="font-size:12px; margin-bottom:8px;color:#606162;">
-      <strong>Area:</strong> ${area.toFixed(2)} sq.km
-    </div>
+                <div style="font-family: 'Segoe UI', sans-serif; min-width:180px; ">
+                  <h3 style="margin:0 0 8px; font-size:12px; color:#606162;">${name}</h3>
+                  <div style="font-size:12px; margin-bottom:8px;color:#606162;">
+                    <strong>Area:</strong> ${area.toFixed(2)} sq.km
+                  </div>
 
-    <div style="display:flex; flex-direction:column; gap:8px; font-size:13px; margin-bottom:8px;">
-      <a href="/map?selected=${encodeURIComponent(
-        selectedParam
-      )}" target="_blank" rel="noopener noreferrer"
-        style="text-decoration:none; display:block;">
-        <div style="
-          background:#17193b;
-          color:#fff;
-          border-radius:6px;
-          padding:4px;
-          text-align:center;
-          font-weight:400;
-          border:none;
-          font-size:12px;
-        ">
-          Land Available — ${landPct || 0}%
-        </div>
-      </a>
+                  <div style="display:flex; flex-direction:column; gap:8px; font-size:13px; margin-bottom:8px;">
+                    <a href="/map?selected=${encodeURIComponent(
+                      selectedForLinks
+                    )}" target="_blank" rel="noopener noreferrer"
+                      style="text-decoration:none; display:block;">
+                      <div style="
+                        background:#17193b;
+                        color:#fff;
+                        border-radius:6px;
+                        padding:4px;
+                        text-align:center;
+                        font-weight:400;
+                        border:none;
+                        font-size:12px;
+                      ">
+                        Land Available — ${landPct || 0}%
+                      </div>
+                    </a>
 
-      <a href="/phase2-gantt?selected=${encodeURIComponent(
-        selectedParam
-      )}" target="_blank"
-        style="text-decoration:none; display:block;">
-        <div style="
-          background:#17193b;
-          color:#fff;
-          border-radius:6px;
-          padding:4px;
-          text-align:center;
-          font-weight:400;
-          border:none;
-          font-size:12px;
-        ">
-          Physical Progress — ${physPct || 0}%
-        </div>
-      </a>
+                    <a href="/phase2-gantt?selected=${encodeURIComponent(
+                      selectedParam
+                    )}" target="_blank"
+                      style="text-decoration:none; display:block;">
+                      <div style="
+                        background:#17193b;
+                        color:#fff;
+                        border-radius:6px;
+                        padding:4px;
+                        text-align:center;
+                        font-weight:400;
+                        border:none;
+                        font-size:12px;
+                      ">
+                        Physical Progress — ${physPct || 0}%
+                      </div>
+                    </a>
 
-      <a href="/details/${encodeURIComponent(selectedParam)}" target="_blank"
-        style="text-decoration:none; display:block;">
-        <div style="
-          background:#17193b;
-          color:#fff;
-          border-radius:6px;
-          padding:4px;
-          text-align:center;
-          font-weight:400;
-          border:none;
-          font-size:12px;
-        ">
-         View Details
-        </div>
-      </a>
-    </div>
-  </div>
-`;
+                    <a href="/details/${encodeURIComponent(
+                      selectedForLinks
+                    )}" target="_blank"
+                      style="text-decoration:none; display:block;">
+                      <div style="
+                        background:#17193b;
+                        color:#fff;
+                        border-radius:6px;
+                        padding:4px;
+                        text-align:center;
+                        font-weight:400;
+                        border:none;
+                        font-size:12px;
+                      ">
+                       View Details
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              `;
+
               new mapboxgl.Popup()
                 .setLngLat(e.lngLat)
                 .setHTML(popupHTML)
@@ -575,7 +534,6 @@ const DashboardMap = ({
             });
           }
 
-          // outline
           if (!map.getLayer("ruda-dashboard-outline")) {
             map.addLayer({
               id: "ruda-dashboard-outline",
@@ -586,7 +544,6 @@ const DashboardMap = ({
           }
         }
 
-        // update paint expression when colors change
         if (map.getLayer("ruda-dashboard-fill")) {
           map.setPaintProperty(
             "ruda-dashboard-fill",
@@ -595,7 +552,6 @@ const DashboardMap = ({
           );
         }
 
-        // fit to data if we have features
         if (filtered.length > 0) {
           const coords = filtered
             .flatMap((f) => getCoordinatesFlat(f.geometry))
@@ -603,40 +559,36 @@ const DashboardMap = ({
           if (coords.length > 0) {
             const lons = coords.map((c) => c[0]);
             const lats = coords.map((c) => c[1]);
-            const minLon = Math.min(...lons);
-            const maxLon = Math.max(...lons);
-            const minLat = Math.min(...lats);
-            const maxLat = Math.max(...lats);
-            map.fitBounds([minLon, minLat, maxLon, maxLat], {
-              padding: 40,
-              duration: 500,
-            });
+            map.fitBounds(
+              [
+                Math.min(...lons),
+                Math.min(...lats),
+                Math.max(...lons),
+                Math.max(...lats),
+              ],
+              {
+                padding: 40,
+                duration: 500,
+              }
+            );
           }
         }
-      } catch (err) {
-        // ignore transient errors (e.g., style not ready)
-        // but do not throw — we'll retry when style loads
-        // console.debug('upsert error', err);
+      } catch {
+        // ignore transient style timing issues
       }
     };
 
-    // Ensure style is fully loaded before adding sources/layers
-    // Prefer map.isStyleLoaded if available, otherwise fall back to waiting for 'load'
     try {
       const styleLoaded =
         typeof map.isStyleLoaded === "function" ? map.isStyleLoaded() : false;
-      if (styleLoaded) {
-        upsert();
-      } else {
-        map.once("load", upsert);
-      }
-    } catch (e) {
-      // As a fallback
+      if (styleLoaded) upsert();
+      else map.once("load", upsert);
+    } catch {
       map.once("load", upsert);
     }
   }, [features, colorMap, selectedNames]);
 
-  // Hover popup for ruda-dashboard-fill — single reusable popup
+  // Hover popup (unchanged)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -645,18 +597,16 @@ const DashboardMap = ({
     const hoveredIdRef = { current: null };
 
     const onMove = (e) => {
-      // only proceed if layer + source exist
       if (
         !map.getSource("ruda-dashboard") ||
         !map.getLayer("ruda-dashboard-fill")
       )
         return;
 
-      const features = map.queryRenderedFeatures(e.point, {
+      const feats = map.queryRenderedFeatures(e.point, {
         layers: ["ruda-dashboard-fill"],
       });
-
-      if (!features || features.length === 0) {
+      if (!feats || feats.length === 0) {
         if (popupRef.current) {
           popupRef.current.remove();
           popupRef.current = null;
@@ -666,15 +616,13 @@ const DashboardMap = ({
         return;
       }
 
-      const f = features[0];
-      // Identify layer type (Project / Package / Phase)
+      const f = feats[0];
       const layerId = f.layer?.id?.toLowerCase() || "";
       let typeLabel = "Feature";
       if (layerId.includes("project")) typeLabel = "Project";
       else if (layerId.includes("package")) typeLabel = "Package";
       else if (layerId.includes("phase")) typeLabel = "Phase";
 
-      // Get title and area
       const title =
         f.properties?.__popupTitle ||
         f.properties?.ruda_phase ||
@@ -735,7 +683,6 @@ const DashboardMap = ({
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
-      {/* Basemap dropdown */}
       <Box
         sx={{
           position: "absolute",
@@ -765,7 +712,6 @@ const DashboardMap = ({
         </FormControl>
       </Box>
 
-      {/* Map container */}
       <div
         ref={mapContainerRef}
         style={{

@@ -2,7 +2,7 @@ const styles = {
   container: {
     minHeight: "100vh",
     backgroundColor: "#f5f5f5",
-    padding: "16px",
+    padding: "0px",
     fontFamily: "Arial, sans-serif",
   },
   title: {

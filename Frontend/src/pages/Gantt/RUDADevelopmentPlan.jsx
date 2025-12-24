@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import HeaderButtons from "../Dashboard/DashboardHeader/HeaderButtons";
+
 // import LogManager from "../LogManager";
 // Updated CSS styles embedded in component
 const styles = `

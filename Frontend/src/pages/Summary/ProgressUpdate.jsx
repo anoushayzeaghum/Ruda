@@ -161,17 +161,30 @@ const ProgressUpdate = () => {
 
         {/* Right side: FY filter then icons (FY stays left of icons) */}
         <Box sx={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <FormControl sx={{ minWidth: 100, minHeight: 50 }}>
-            <InputLabel sx={{ color: "white", fontSize: "18px" }}>
+          <FormControl sx={{ minWidth: 100 }}>
+            <InputLabel
+              shrink
+              sx={{
+                color: "#fdfdfd",
+                fontSize: "16px",
+              }}
+            >
               FY
             </InputLabel>
+
             <Select
               value={selectedFY}
               onChange={(e) => setSelectedFY(e.target.value)}
+              size="small"
+              notched={false} // ✅ IMPORTANT: notch off
               sx={{
                 color: "white",
+                height: "40px",
                 "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "white",
+                  borderColor: "#2f5379",
+                },
+                "& legend": {
+                  display: "none", // ✅ removes the line above FY
                 },
                 "& .MuiSvgIcon-root": {
                   color: "white",
