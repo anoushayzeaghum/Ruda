@@ -9,14 +9,7 @@
 
 .dashboard-container {
   font-family: var(--font-family-sans-serif);
-  background: radial-gradient(
-    farthest-side ellipse at 20% 0,
-    #333867 40%,
-    #23274b
-  );
-  background-attachment: fixed; /* 👈 keeps gradient fixed while scrolling */
-  background-repeat: no-repeat;
-  background-size: cover; /* makes sure it fills the whole screen */
+  background: transparent;
   color: white;
   min-height: 100vh;
 }

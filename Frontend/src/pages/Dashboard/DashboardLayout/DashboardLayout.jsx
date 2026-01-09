@@ -185,7 +185,7 @@ const DashboardLayout = ({
           {/* Right: Statistics Card */}
           <div
             style={{
-              background: "rgb(30 33 65)",
+              background: "#1e3a5f",
               borderRadius: "12px",
               // border: "1px solid rgba(255,255,255,0.1)",
               padding: "20px",
@@ -216,7 +216,7 @@ const DashboardLayout = ({
       >
         <div
           style={{
-            background: "rgb(30 33 65)",
+            background: "#1e3a5f",
             borderRadius: "12px",
             padding: "10px",
           }}
@@ -226,7 +226,7 @@ const DashboardLayout = ({
 
         <div
           style={{
-            background: "rgb(30 33 65)",
+            background: "#1e3a5f",
             borderRadius: "12px",
             padding: "10px",
           }}
@@ -236,7 +236,7 @@ const DashboardLayout = ({
 
         <div
           style={{
-            background: "rgb(30 33 65)",
+            background: "#1e3a5f",
             borderRadius: "12px",
             padding: "10px",
           }}
@@ -246,7 +246,7 @@ const DashboardLayout = ({
 
         <div
           style={{
-            background: "rgb(30 33 65)",
+            background: "#1e3a5f",
             borderRadius: "12px",
             padding: "10px",
           }}
@@ -256,7 +256,7 @@ const DashboardLayout = ({
 
         <div
           style={{
-            background: "rgb(30 33 65)",
+            background: "#1e3a5f",
             borderRadius: "12px",
             padding: "10px",
           }}
@@ -265,7 +265,7 @@ const DashboardLayout = ({
         </div>
         <div
           style={{
-            background: "rgb(30 33 65)",
+            background: "#1e3a5f",
             borderRadius: "12px",
             padding: "10px",
           }}

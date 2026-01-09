@@ -6,6 +6,8 @@ import DashboardLayout from "./DashboardLayout/DashboardLayout";
 import DashboardMap from "./DashboardLayout/LayoutComponent/DashboardMap";
 import RudaStatistics from "./DashboardLayout/LayoutComponent/RudaStatistics";
 import Popups from "./DashboardLayout/LayoutComponent/Popups";
+import SelectedFiltersChips from "./SelectedFiltersChips";
+import { ChevronRight } from "lucide-react";
 import * as turf from "@turf/turf";
 import ProposedRoadsLayer from "../Summary/ProposedRoadsLayer";
 import "./Dashboard.css";
@@ -30,6 +32,10 @@ const Dashboard = () => {
   const [showProjectPopups, setShowProjectPopups] = useState(false);
   // toggle display of the right-side RudaStatistics card on the dashboard map
   const [showRudaStatistics, setShowRudaStatistics] = useState(false);
+  // Ruda Statistics collapse state
+  const [isRudaStatisticsCollapsed, setIsRudaStatisticsCollapsed] = useState(false);
+  // Sidebar collapse state
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     // Load the same dataset MainMap uses so dropdowns match
@@ -82,6 +88,18 @@ const Dashboard = () => {
 
       {/* Top: map with overlayed sidebar (left) and statistics (right) */}
       <div style={{ position: "relative", width: "100%", height: "93vh" }}>
+        {/* Selected Filters Chips - below header on map */}
+        <SelectedFiltersChips
+          selectedPhases={selectedPhases}
+          setSelectedPhases={setSelectedPhases}
+          selectedPackages={selectedPackages}
+          setSelectedPackages={setSelectedPackages}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+          selectedProjects={selectedProjects}
+          setSelectedProjects={setSelectedProjects}
+        />
+        
         <DashboardMap
           features={features}
           colorMap={colorMap}
@@ -116,18 +134,62 @@ const Dashboard = () => {
         {/* Proposed roads legend & layer manager (works with dashboard map instance) */}
         <ProposedRoadsLayer />
 
+        {/* Collapse button when sidebar is collapsed */}
+        {isSidebarCollapsed && (
+          <div
+            onClick={() => setIsSidebarCollapsed(false)}
+            style={{
+              position: "absolute",
+              left: 8,
+              top: 18,
+              zIndex: 1201,
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "8px 12px",
+              backgroundColor: "#1e3a5f",
+              borderRadius: "8px",
+              border: "1px solid rgba(255,255,255,0.1)",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)";
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#1e3a5f";
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+            }}
+            title="Expand Sidebar"
+          >
+            <span
+              style={{
+                color: "#ffffff",
+                fontSize: "0.95rem",
+                fontWeight: 500,
+              }}
+            >
+              Layer Controls
+            </span>
+            <ChevronRight size={20} color="#ffffff" />
+          </div>
+        )}
+
         {/* Overlayed sidebar on the left of the map */}
         <div
           style={{
             position: "absolute",
-            left: 8,
+            left: isSidebarCollapsed ? -272 : 8,
             top: 18,
             zIndex: 1200,
             width: 280,
             height: "92%",
             overflow: "auto",
-            background: "rgb(30 33 65)",
+            background: "#1e3a5f",
             borderRadius: 12,
+            transition: "left 0.3s ease",
           }}
         >
           <DashboardSidebar
@@ -154,6 +216,9 @@ const Dashboard = () => {
             // Ruda Statistics toggle
             showRudaStatistics={showRudaStatistics}
             setShowRudaStatistics={setShowRudaStatistics}
+            // Sidebar collapse
+            isSidebarCollapsed={isSidebarCollapsed}
+            setIsSidebarCollapsed={setIsSidebarCollapsed}
             // ensure sidebar uses full area of this wrapper
             containerStyle={{ width: "100%", height: "100%", padding: 12 }}
           />
@@ -165,16 +230,21 @@ const Dashboard = () => {
             style={{
               position: "absolute",
               right: 12,
-              top: 290,
+              top: 80,
               zIndex: 1200,
               width: 280,
-              height: 360,
-              background: "rgb(30 33 65)",
+              height: isRudaStatisticsCollapsed ? "auto" : 360,
+              minHeight: isRudaStatisticsCollapsed ? "60px" : "360px",
+              background: "#1e3a5f",
               borderRadius: 12,
               overflow: "hidden",
+              transition: "height 0.3s ease",
             }}
           >
-            <RudaStatistics />
+            <RudaStatistics 
+              isCollapsed={isRudaStatisticsCollapsed}
+              setIsCollapsed={setIsRudaStatisticsCollapsed}
+            />
           </div>
         )}
       </div>

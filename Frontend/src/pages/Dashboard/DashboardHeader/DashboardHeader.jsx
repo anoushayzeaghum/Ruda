@@ -10,7 +10,6 @@ import {
   BarChart3,
   ActivitySquare,
   Route,
-  Search,
   Home,
 } from "lucide-react";
 
@@ -74,57 +73,49 @@ const DashboardHeader = () => {
       style={{
         width: "100%",
         height: "60px",
-        background: "transparent",
+        background: "#1e3a5f",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         padding: "0 20px",
         position: "relative",
         fontFamily: '"Open Sans", sans-serif',
+        borderRadius: "12px",
       }}
     >
-      {/* Left: Title */}
+      {/* Left: Logo */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        <img
+          src="/RUDA LOGO.png"
+          alt="RUDA Logo"
+          style={{
+            height: "45px",
+            width: "auto",
+            objectFit: "contain",
+          }}
+        />
+      </div>
+
+      {/* Center: Title */}
       <p
         style={{
           margin: 0,
           fontWeight: 100,
           fontSize: "1.5rem",
           color: "#fff",
+          position: "absolute",
+          left: "50%",
+          transform: "translateX(-50%)",
         }}
       >
         RAVI URBAN DEVELOPMENT AUTHORITY
       </p>
-
-      {/* Middle: Search Bar */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          backgroundColor: "#17193b",
-          borderRadius: "4px",
-          padding: "6px 12px",
-          width: "60%",
-          maxWidth: "400px",
-          transition: "all 0.3s ease",
-          border: "1px solid rgba(255,255,255,0.2)",
-          backdropFilter: "blur(6px)",
-        }}
-      >
-        <Search size={18} color="#fff" style={{ marginRight: "8px" }} />
-        <input
-          type="text"
-          placeholder="Search Dashboard"
-          style={{
-            flex: 1,
-            background: "transparent",
-            border: "none",
-            outline: "none",
-            color: "white",
-            fontFamily: '"Open Sans", sans-serif',
-            fontSize: "0.9rem",
-          }}
-        />
-      </div>
 
       {/* Right: Header Buttons */}
       <HeaderButtons />
