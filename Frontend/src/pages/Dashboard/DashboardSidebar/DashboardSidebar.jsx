@@ -38,13 +38,13 @@ const DashboardSidebar = ({
   openLayers = true,
   setOpenLayers = undefined,
   selectedPhases = [],
-  setSelectedPhases = () => {},
+  setSelectedPhases = () => { },
   selectedPackages = [],
-  setSelectedPackages = () => {},
+  setSelectedPackages = () => { },
   selectedCategories = [],
-  setSelectedCategories = () => {},
+  setSelectedCategories = () => { },
   selectedProjects = [],
-  setSelectedProjects = () => {},
+  setSelectedProjects = () => { },
   // popup toggles
   showPhasePopups = false,
   setShowPhasePopups = undefined,
@@ -55,6 +55,9 @@ const DashboardSidebar = ({
   // control right-side RudaStatistics overlay in Dashboard
   showRudaStatistics = false,
   setShowRudaStatistics = undefined,
+  // control Proposed Roads overlay
+  showProposedRoads = false,
+  setShowProposedRoads = undefined,
   // Sidebar collapse
   isSidebarCollapsed = false,
   setIsSidebarCollapsed = undefined,
@@ -69,7 +72,7 @@ const DashboardSidebar = ({
 
   // 🔹 LOCAL STATE: Ruda Boundaries dropdown
   const [selectedBoundary, setSelectedBoundary] = React.useState("");
-  
+
   // 🔹 Ref for Layer Controls text to change color on hover
   const layerControlsTextRef = React.useRef(null);
 
@@ -80,6 +83,13 @@ const DashboardSidebar = ({
     categories: false,
     projects: false,
   });
+
+  // 🔹 States to control dropdown open/close
+  const [boundaryOpen, setBoundaryOpen] = React.useState(false);
+  const [phasesOpen, setPhasesOpen] = React.useState(false);
+  const [packagesOpen, setPackagesOpen] = React.useState(false);
+  const [categoriesOpen, setCategoriesOpen] = React.useState(false);
+  const [projectsOpen, setProjectsOpen] = React.useState(false);
 
   const handleBoundaryChange = (event) => {
     const value = event.target.value;
@@ -112,6 +122,9 @@ const DashboardSidebar = ({
         detail,
       })
     );
+
+    // 🔹 Auto-close dropdown when a boundary is selected
+    setBoundaryOpen(false);
   };
 
   // 🔹 Derived dropdown options
@@ -123,13 +136,14 @@ const DashboardSidebar = ({
       if (
         name &&
         typeof name === "string" &&
+        name.trim() !== "" &&
         name.toLowerCase().startsWith("phase")
       ) {
-        setValues.add(name);
+        setValues.add(name.trim());
       }
     });
     return Array.from(setValues).sort((a, b) => {
-      // Custom sort to maintain proper phase order
+      // ...
       const order = [
         "Phase 1",
         "Phase 2A",
@@ -153,14 +167,16 @@ const DashboardSidebar = ({
           features
             .filter(
               (f) =>
-                f.properties?.name?.startsWith("RTW Package") &&
+                f.properties?.name &&
+                f.properties.name.trim() !== "" &&
+                f.properties.name.startsWith("RTW Package") &&
                 f.properties?.ruda_phase &&
                 selectedPhases.some(
                   (phase) =>
                     normalize(f.properties.ruda_phase) === normalize(phase)
                 )
             )
-            .map((f) => f.properties.name)
+            .map((f) => f.properties.name.trim())
         ),
       ].sort((a, b) => a.localeCompare(b)),
     [features, selectedPhases]
@@ -193,9 +209,9 @@ const DashboardSidebar = ({
       .map((f) => f.properties.name);
   }, [features, selectedPackages, selectedCategories]);
 
-  const renderDropdown = (label, value, setValue, options) => {
+  const renderDropdown = (label, value, setValue, options, openState, setOpenState) => {
     const isAllSelected = options.length > 0 && value.length === options.length;
-    
+
     // Get the key for tracking "Select All" clicks
     const dropdownKey = label.toLowerCase().replace(/\s+/g, "");
     const wasSelectAllClicked = selectAllClickedRef.current[dropdownKey] || false;
@@ -207,21 +223,21 @@ const DashboardSidebar = ({
         // User explicitly clicked "Select All"
         selectAllClickedRef.current[dropdownKey] = !isAllSelected;
         setValue(isAllSelected ? [] : options);
+
+        // 🔹 Auto-close dropdown ONLY when "Select All" is chosen
+        setOpenState(false);
       } else {
         // User selected items individually - reset "Select All" clicked state
         selectAllClickedRef.current[dropdownKey] = false;
         setValue(selected);
-        
+
         // If all items are unchecked, also reset the state
         if (selected.length === 0) {
           selectAllClickedRef.current[dropdownKey] = false;
         }
-      }
 
-      // 🔹 Auto-close dropdown by blurring the active element
-      const active = event.target.ownerDocument?.activeElement;
-      if (active && typeof active.blur === "function") {
-        active.blur();
+        // 🔹 Auto-close dropdown when any option is chosen
+        setOpenState(false);
       }
     };
 
@@ -232,10 +248,15 @@ const DashboardSidebar = ({
         </InputLabel>
         <Select
           multiple
+          open={openState}
+          onOpen={() => setOpenState(true)}
+          onClose={() => setOpenState(false)}
           value={value}
           onChange={handleChange}
           input={<OutlinedInput label={label} />}
-          renderValue={() => ""}
+          renderValue={(selected) =>
+            selected.length > 0 ? selected.join(", ") : ""
+          }
           displayEmpty
           sx={{
             color: "#fff",
@@ -352,7 +373,6 @@ const DashboardSidebar = ({
     display: "flex",
     flexDirection: "column",
     padding: "20px 15px",
-    fontFamily: '"Open Sans", sans-serif',
     overflowY: "auto",
     msOverflowStyle: "none", // IE / Edge
     scrollbarWidth: "none", // Firefox
@@ -376,7 +396,7 @@ const DashboardSidebar = ({
           style={{
             color: "#ffffff",
             fontSize: "0.95rem",
-            fontWeight: 500,
+            fontWeight: "bold",
             transition: "color 0.2s ease",
           }}
         >
@@ -463,6 +483,9 @@ const DashboardSidebar = ({
                 Ruda Boundaries
               </InputLabel>
               <Select
+                open={boundaryOpen}
+                onOpen={() => setBoundaryOpen(true)}
+                onClose={() => setBoundaryOpen(false)}
                 value={selectedBoundary}
                 label="Ruda Boundaries"
                 onChange={handleBoundaryChange}
@@ -556,25 +579,33 @@ const DashboardSidebar = ({
                 "Phases",
                 selectedPhases,
                 setSelectedPhases,
-                phaseOptions
+                phaseOptions,
+                phasesOpen,
+                setPhasesOpen
               )}
               {renderDropdown(
                 "Packages",
                 selectedPackages,
                 setSelectedPackages,
-                packageOptions
+                packageOptions,
+                packagesOpen,
+                setPackagesOpen
               )}
               {renderDropdown(
                 "Categories",
                 selectedCategories,
                 setSelectedCategories,
-                categoryOptions
+                categoryOptions,
+                categoriesOpen,
+                setCategoriesOpen
               )}
               {renderDropdown(
                 "Projects",
                 selectedProjects,
                 setSelectedProjects,
-                projectOptions
+                projectOptions,
+                projectsOpen,
+                setProjectsOpen
               )}
             </div>
           )}
@@ -622,8 +653,8 @@ const DashboardSidebar = ({
                     fontSize: "0.9rem",
                   }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor =
-                      "rgba(255,255,255,0.1)")
+                  (e.currentTarget.style.backgroundColor =
+                    "rgba(255,255,255,0.1)")
                   }
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.backgroundColor = "transparent")
@@ -671,18 +702,25 @@ const DashboardSidebar = ({
                         backgroundColor: "rgba(255,255,255,0.08)",
                       }}
                       onMouseEnter={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgba(255,255,255,0.12)")
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255,255,255,0.12)")
                       }
                       onMouseLeave={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgba(255,255,255,0.08)")
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255,255,255,0.08)")
                       }
                     >
                       <input
                         type="checkbox"
                         checked={!!showPhasePopups}
-                        onChange={(e) => setShowPhasePopups?.(e.target.checked)}
+                        onChange={(e) => {
+                          const val = e.target.checked;
+                          setShowPhasePopups?.(val);
+                          if (val) {
+                            setShowPackagePopups?.(false);
+                            setShowProjectPopups?.(false);
+                          }
+                        }}
                       />
                       Phases
                     </label>
@@ -700,20 +738,25 @@ const DashboardSidebar = ({
                         backgroundColor: "rgba(255,255,255,0.08)",
                       }}
                       onMouseEnter={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgba(255,255,255,0.12)")
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255,255,255,0.12)")
                       }
                       onMouseLeave={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgba(255,255,255,0.08)")
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255,255,255,0.08)")
                       }
                     >
                       <input
                         type="checkbox"
                         checked={!!showPackagePopups}
-                        onChange={(e) =>
-                          setShowPackagePopups?.(e.target.checked)
-                        }
+                        onChange={(e) => {
+                          const val = e.target.checked;
+                          setShowPackagePopups?.(val);
+                          if (val) {
+                            setShowPhasePopups?.(false);
+                            setShowProjectPopups?.(false);
+                          }
+                        }}
                       />
                       Packages
                     </label>
@@ -731,20 +774,25 @@ const DashboardSidebar = ({
                         backgroundColor: "rgba(255,255,255,0.08)",
                       }}
                       onMouseEnter={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgba(255,255,255,0.12)")
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255,255,255,0.12)")
                       }
                       onMouseLeave={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgba(255,255,255,0.08)")
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255,255,255,0.08)")
                       }
                     >
                       <input
                         type="checkbox"
                         checked={!!showProjectPopups}
-                        onChange={(e) =>
-                          setShowProjectPopups?.(e.target.checked)
-                        }
+                        onChange={(e) => {
+                          const val = e.target.checked;
+                          setShowProjectPopups?.(val);
+                          if (val) {
+                            setShowPhasePopups?.(false);
+                            setShowPackagePopups?.(false);
+                          }
+                        }}
                       />
                       Projects
                     </label>
@@ -771,8 +819,8 @@ const DashboardSidebar = ({
               }}
               onClick={() => setShowRudaStatistics?.(!showRudaStatistics)}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor =
-                  "rgba(255,255,255,0.1)")
+              (e.currentTarget.style.backgroundColor =
+                "rgba(255,255,255,0.1)")
               }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.backgroundColor = "transparent")
@@ -791,13 +839,14 @@ const DashboardSidebar = ({
                 padding: "6px 10px",
                 borderRadius: "6px",
                 transition: "0.2s",
+                background: showProposedRoads
+                  ? "rgba(255,255,255,0.04)"
+                  : "transparent",
               }}
-              onClick={() =>
-                window.dispatchEvent(new CustomEvent("toggleProposedRoads"))
-              }
+              onClick={() => setShowProposedRoads?.(!showProposedRoads)}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor =
-                  "rgba(255,255,255,0.1)")
+              (e.currentTarget.style.backgroundColor =
+                "rgba(255,255,255,0.1)")
               }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.backgroundColor = "transparent")

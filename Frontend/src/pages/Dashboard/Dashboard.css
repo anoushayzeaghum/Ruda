@@ -1,5 +1,5 @@
 :root {
-  --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI",
+  --font-family-sans-serif: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
@@ -20,8 +20,10 @@
 }
 
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE, Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE, Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .abc-checkbox {
@@ -61,12 +63,12 @@
   transition: all 0.2s ease;
 }
 
-.abc-checkbox input[type="checkbox"]:checked + label::before {
+.abc-checkbox input[type="checkbox"]:checked+label::before {
   background: #007bff;
   border-color: #007bff;
 }
 
-.abc-checkbox input[type="checkbox"]:checked + label::after {
+.abc-checkbox input[type="checkbox"]:checked+label::after {
   content: "";
   position: absolute;
   left: 5px;
@@ -76,4 +78,16 @@
   border: solid white;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
+}
+
+/* Reset Mapbox default popup styles to remove extra white border */
+.mapboxgl-popup-content {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.mapboxgl-popup-tip {
+  display: none !important;
 }

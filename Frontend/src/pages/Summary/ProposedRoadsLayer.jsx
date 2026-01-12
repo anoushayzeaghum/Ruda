@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import mapboxgl from "mapbox-gl";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 const legendItems = [
   { label: "Primary Roads (300'-Wide)", color: "#19598d" },
@@ -12,11 +13,15 @@ const legendItems = [
   { label: "300' ROW", color: "#00bcd4" },
 ];
 
-const ProposedRoadsLayer = () => {
+const ProposedRoadsLayer = ({
+  visible = false,
+  isCollapsed = false,
+  setIsCollapsed = () => { }
+}) => {
   const [proposedRoads, setProposedRoads] = useState(null);
-  const [visible, setVisible] = useState(false);
+  // internal isCollapsed state removed in favor of props
 
-  // 🔁 Preload GeoJSON and listen for toggle
+  // 🔁 Preload GeoJSON
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -31,15 +36,10 @@ const ProposedRoadsLayer = () => {
     };
 
     fetchData();
-
-    const toggle = () => setVisible((prev) => !prev);
-    window.addEventListener("toggleProposedRoads", toggle);
-    return () => window.removeEventListener("toggleProposedRoads", toggle);
   }, []);
 
   // 🗺️ Add/Update layer on map
   useEffect(() => {
-    // support both main map and dashboard map instances
     const map = window.__MAPBOX_INSTANCE__ || window.__DASHBOARD_MAP__;
     if (!map || !proposedRoads) return;
 
@@ -120,48 +120,68 @@ const ProposedRoadsLayer = () => {
     }
   }, [proposedRoads, visible]);
 
+  if (!visible) return null;
+
   return (
-    <>
-      {visible && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 36,
-            right: 16,
-            backgroundColor: "#252845",
-            color: "#fff",
-            padding: "10px 12px",
-            borderRadius: "8px",
-            fontSize: "15px",
-            zIndex: 999,
-            maxWidth: 300,
-            border: "1px solid rgba(255,255,255,0.1)",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-          }}
-        >
-          <strong style={{ display: "block", marginBottom: 6 }}>
-            Proposed Roads Legend
-          </strong>
+    <div
+      style={{
+        position: "absolute",
+        bottom: 80, // Moved up to avoid overlap with standard footer elements
+        right: 16,
+        backgroundColor: "#1e3a5f",
+        color: "#fff",
+        borderRadius: "12px",
+        fontSize: "14px",
+        zIndex: 1200,
+        width: 250,
+        border: "1px solid rgba(255,255,255,0.1)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+        overflow: "hidden",
+        transition: "all 0.3s ease",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "10px 12px",
+          cursor: "pointer",
+          borderBottom: isCollapsed ? "none" : "1px solid rgba(255,255,255,0.1)",
+          background: "rgba(255,255,255,0.05)",
+        }}
+        onClick={() => setIsCollapsed(!isCollapsed)}
+      >
+        <strong style={{ fontSize: "0.9rem" }}>Proposed Roads</strong>
+        {isCollapsed ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+      </div>
+
+      {!isCollapsed && (
+        <div style={{ padding: "8px 12px" }}>
           {legendItems.map((item, idx) => (
             <div
               key={idx}
-              style={{ display: "flex", alignItems: "center", marginBottom: 4 }}
+              style={{ display: "flex", alignItems: "center", marginBottom: 6 }}
             >
               <span
                 style={{
-                  width: 16,
-                  height: 4,
+                  width: 12,
+                  height: 12,
+                  borderRadius: "2px",
                   backgroundColor: item.color,
-                  marginRight: 8,
+                  marginRight: 10,
                 }}
               />
-              <span>{item.label}</span>
+              <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.8)" }}>
+                {item.label}
+              </span>
             </div>
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
 export default ProposedRoadsLayer;
+

@@ -1,7 +1,7 @@
 import React from "react";
 import { MapPin, Settings, Search, ChevronDown, ChevronUp } from "lucide-react";
 
-const RudaStatistics = ({ isCollapsed = false, setIsCollapsed = () => {} }) => {
+const RudaStatistics = ({ isCollapsed = false, setIsCollapsed = () => { } }) => {
   const stats = [
     {
       title: "Priority Projects",
@@ -31,7 +31,7 @@ const RudaStatistics = ({ isCollapsed = false, setIsCollapsed = () => {} }) => {
         borderRadius: "12px",
         color: "#fff",
         padding: "16px",
-        fontFamily: '"Open Sans", sans-serif',
+        padding: "16px",
         display: "flex",
         flexDirection: "column",
         fontSize: "0.85rem",
@@ -212,7 +212,6 @@ const RudaStatistics = ({ isCollapsed = false, setIsCollapsed = () => {} }) => {
                   border: "none",
                   outline: "none",
                   color: "white",
-                  fontFamily: '"Open Sans", sans-serif',
                   fontSize: "0.9rem",
                 }}
               />

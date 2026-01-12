@@ -30,15 +30,35 @@ const Dashboard = () => {
   const [showPhasePopups, setShowPhasePopups] = useState(false);
   const [showPackagePopups, setShowPackagePopups] = useState(false);
   const [showProjectPopups, setShowProjectPopups] = useState(false);
-  // toggle display of the right-side RudaStatistics card on the dashboard map
+  // Ruda Statistics toggle display of the right-side card
   const [showRudaStatistics, setShowRudaStatistics] = useState(false);
+  // Proposed Roads toggle state
+  const [showProposedRoads, setShowProposedRoads] = useState(false);
+
   // Ruda Statistics collapse state
   const [isRudaStatisticsCollapsed, setIsRudaStatisticsCollapsed] = useState(false);
+  // Proposed Roads collapse state
+  const [isProposedRoadsCollapsed, setIsProposedRoadsCollapsed] = useState(false);
+
+  // New wrapper functions to ensure mutual exclusivity
+  const handleRudaStatisticsCollapse = (val) => {
+    setIsRudaStatisticsCollapsed(val);
+    if (!val) { // if expanding
+      setIsProposedRoadsCollapsed(true);
+    }
+  };
+
+  const handleProposedRoadsCollapse = (val) => {
+    setIsProposedRoadsCollapsed(val);
+    if (!val) { // if expanding
+      setIsRudaStatisticsCollapsed(true);
+    }
+  };
   // Sidebar collapse state
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
-    // Load the same dataset MainMap uses so dropdowns match
+    // Load the same dataset relative to MainMap logic
     const API_URL = "https://ruda-planning.onrender.com/api/all";
     axios
       .get(API_URL)
@@ -46,7 +66,6 @@ const Dashboard = () => {
         const feats = res.data.features || [];
         setFeatures(feats);
 
-        // Build initial color map similar to MainMapPage
         const names = [
           ...new Set(feats.map((f) => f.properties?.name).filter(Boolean)),
         ];
@@ -83,23 +102,23 @@ const Dashboard = () => {
         width: "100%",
       }}
     >
-      {/* Full-width header on top */}
       <DashboardHeader />
 
-      {/* Top: map with overlayed sidebar (left) and statistics (right) */}
       <div style={{ position: "relative", width: "100%", height: "93vh" }}>
-        {/* Selected Filters Chips - below header on map */}
-        <SelectedFiltersChips
-          selectedPhases={selectedPhases}
-          setSelectedPhases={setSelectedPhases}
-          selectedPackages={selectedPackages}
-          setSelectedPackages={setSelectedPackages}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          selectedProjects={selectedProjects}
-          setSelectedProjects={setSelectedProjects}
-        />
-        
+        {/* Only show Active Filters if no other side panels are obstructing */}
+        {!showRudaStatistics && !showProposedRoads && (
+          <SelectedFiltersChips
+            selectedPhases={selectedPhases}
+            setSelectedPhases={setSelectedPhases}
+            selectedPackages={selectedPackages}
+            setSelectedPackages={setSelectedPackages}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            selectedProjects={selectedProjects}
+            setSelectedProjects={setSelectedProjects}
+          />
+        )}
+
         <DashboardMap
           features={features}
           colorMap={colorMap}
@@ -110,7 +129,6 @@ const Dashboard = () => {
           ]}
         />
 
-        {/* Popups for dashboard map (Phase / Package / Project popups) */}
         <Popups
           features={(features || []).map((f) => ({
             ...f,
@@ -129,12 +147,17 @@ const Dashboard = () => {
           showPhasePopups={showPhasePopups}
           showPackagePopups={showPackagePopups}
           showProjectPopups={showProjectPopups}
+          selectedPhases={selectedPhases}
+          selectedPackages={selectedPackages}
+          selectedProjects={selectedProjects}
         />
 
-        {/* Proposed roads legend & layer manager (works with dashboard map instance) */}
-        <ProposedRoadsLayer />
+        <ProposedRoadsLayer
+          visible={showProposedRoads}
+          isCollapsed={isProposedRoadsCollapsed}
+          setIsCollapsed={handleProposedRoadsCollapse}
+        />
 
-        {/* Collapse button when sidebar is collapsed */}
         {isSidebarCollapsed && (
           <div
             onClick={() => setIsSidebarCollapsed(false)}
@@ -177,7 +200,6 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Overlayed sidebar on the left of the map */}
         <div
           style={{
             position: "absolute",
@@ -216,6 +238,9 @@ const Dashboard = () => {
             // Ruda Statistics toggle
             showRudaStatistics={showRudaStatistics}
             setShowRudaStatistics={setShowRudaStatistics}
+            // Proposed Roads toggle
+            showProposedRoads={showProposedRoads}
+            setShowProposedRoads={setShowProposedRoads}
             // Sidebar collapse
             isSidebarCollapsed={isSidebarCollapsed}
             setIsSidebarCollapsed={setIsSidebarCollapsed}
@@ -241,9 +266,9 @@ const Dashboard = () => {
               transition: "height 0.3s ease",
             }}
           >
-            <RudaStatistics 
+            <RudaStatistics
               isCollapsed={isRudaStatisticsCollapsed}
-              setIsCollapsed={setIsRudaStatisticsCollapsed}
+              setIsCollapsed={handleRudaStatisticsCollapse}
             />
           </div>
         )}

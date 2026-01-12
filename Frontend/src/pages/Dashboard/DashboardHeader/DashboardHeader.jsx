@@ -79,8 +79,7 @@ const DashboardHeader = () => {
         justifyContent: "space-between",
         padding: "0 20px",
         position: "relative",
-        fontFamily: '"Open Sans", sans-serif',
-        borderRadius: "12px",
+        borderRadius: "0 0 12px 12px",
       }}
     >
       {/* Left: Logo */}

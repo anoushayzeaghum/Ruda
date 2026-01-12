@@ -463,62 +463,57 @@ const DashboardMap = ({
               else selectedParam = props.__phase || name;
 
               const popupHTML = `
-                <div style="font-family: 'Segoe UI', sans-serif; min-width:180px; ">
-                  <h3 style="margin:0 0 8px; font-size:12px; color:#606162;">${name}</h3>
-                  <div style="font-size:12px; margin-bottom:8px;color:#606162;">
+                <div style="font-family: 'Inter', sans-serif; min-width:200px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(4px); border-radius: 8px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 4px 12px rgba(0,0,0,0.12); padding: 12px; color: #333;">
+                  <h3 style="margin:0 0 8px; font-size:13px; font-weight: 600; color:#1e3a5f;">${name}</h3>
+                  <div style="font-size:12px; margin-bottom:12px; color:#555;">
                     <strong>Area:</strong> ${area.toFixed(2)} sq.km
                   </div>
 
-                  <div style="display:flex; flex-direction:column; gap:8px; font-size:13px; margin-bottom:8px;">
+                  <div style="display:flex; flex-direction:column; gap:8px; font-size:12px;">
                     <a href="/map?selected=${encodeURIComponent(
-                      selectedForLinks
-                    )}" target="_blank" rel="noopener noreferrer"
+                selectedForLinks
+              )}" target="_blank" rel="noopener noreferrer"
                       style="text-decoration:none; display:block;">
                       <div style="
-                        background:#17193b;
+                        background:#1e3a5f;
                         color:#fff;
                         border-radius:6px;
-                        padding:4px;
+                        padding:6px 8px;
                         text-align:center;
-                        font-weight:400;
-                        border:none;
-                        font-size:12px;
+                        font-weight:500;
+                        transition: background 0.2s;
                       ">
                         Land Available — ${landPct || 0}%
                       </div>
                     </a>
 
                     <a href="/phase2-gantt?selected=${encodeURIComponent(
-                      selectedParam
-                    )}" target="_blank"
+                selectedParam
+              )}" target="_blank"
                       style="text-decoration:none; display:block;">
                       <div style="
-                        background:#17193b;
+                        background:#1e3a5f;
                         color:#fff;
                         border-radius:6px;
-                        padding:4px;
+                        padding:6px 8px;
                         text-align:center;
-                        font-weight:400;
-                        border:none;
-                        font-size:12px;
+                        font-weight:500;
                       ">
                         Physical Progress — ${physPct || 0}%
                       </div>
                     </a>
 
                     <a href="/details/${encodeURIComponent(
-                      selectedForLinks
-                    )}" target="_blank"
+                selectedForLinks
+              )}" target="_blank"
                       style="text-decoration:none; display:block;">
                       <div style="
-                        background:#17193b;
+                        background:#1e3a5f;
                         color:#fff;
                         border-radius:6px;
-                        padding:4px;
+                        padding:6px 8px;
                         text-align:center;
-                        font-weight:400;
-                        border:none;
-                        font-size:12px;
+                        font-weight:500;
                       ">
                        View Details
                       </div>
@@ -643,9 +638,9 @@ const DashboardMap = ({
 
       hoveredIdRef.current = id;
       const html = `
-        <div style="font-size: 11px; color: #242121; padding: 2px 2px; border-radius: 4px;">
-            <div style="opacity:0.5;">${typeLabel}</div>
-            <div>${title}</div>
+        <div style="font-family: 'Inter', sans-serif; font-size: 11px; color: #2c3e50; padding: 6px 10px; border-radius: 6px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(4px); border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="opacity:0.6; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">${typeLabel}</div>
+            <div style="font-weight: 600; margin-top: 2px;">${title}</div>
             <div style="margin-top:2px;">${areaText}</div>
         </div>`;
 
