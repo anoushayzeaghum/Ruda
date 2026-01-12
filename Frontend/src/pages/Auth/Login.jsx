@@ -5,15 +5,13 @@ import "./Auth.css";
 const Login = () => {
   const navigate = useNavigate();
 
-  // Check if user is already authenticated on component mount (only once)
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      // Simple redirect without validation to avoid interference
-      // The ProtectedRoute will handle token validation
       navigate("/", { replace: true });
     }
-  }, []); // Empty dependency array to run only once
+  }, []);
+
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -52,7 +50,7 @@ const Login = () => {
     if (!validateForm()) return;
 
     setLoading(true);
-    setErrors({}); // Clear previous errors
+    setErrors({});
 
     try {
       const response = await fetch(
@@ -60,10 +58,7 @@ const Login = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: formData.username,
-            password: formData.password,
-          }),
+          body: JSON.stringify(formData),
         }
       );
 
@@ -76,7 +71,7 @@ const Login = () => {
       } else {
         setErrors({ submit: data.message || "Login failed" });
       }
-    } catch (error) {
+    } catch {
       setErrors({ submit: "Network error. Please try again." });
     } finally {
       setLoading(false);
@@ -84,19 +79,27 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-wrapper">
+    <div
+      className="auth-wrapper"
+      style={{
+        backgroundImage: "url('/Rudabg.png')",
+      }}
+    >
       <div className="auth-container">
-        <div className="auth-card">
+        <div className="auth-card glass">
           <div className="auth-header">
-            <img src="/Ruda.jpg" alt="Ruda Logo" className="auth-header-logo" />
+            <img
+              src="/Rudalogo.png"
+              alt="Ruda Logo"
+              className="auth-header-logo"
+            />
           </div>
 
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-group">
-              <label htmlFor="username">Username</label>
+              <label>Username</label>
               <input
                 type="text"
-                id="username"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
@@ -107,11 +110,11 @@ const Login = () => {
                 <span className="error-text">{errors.username}</span>
               )}
             </div>
+
             <div className="form-group">
-              <label htmlFor="password">Password</label>
+              <label>Password</label>
               <input
                 type="password"
-                id="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
