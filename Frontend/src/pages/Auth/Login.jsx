@@ -89,7 +89,7 @@ const Login = () => {
         <div className="auth-card glass">
           <div className="auth-header">
             <img
-              src="/Rudalogo.png"
+              src="/rudalogo.png"
               alt="Ruda Logo"
               className="auth-header-logo"
             />
