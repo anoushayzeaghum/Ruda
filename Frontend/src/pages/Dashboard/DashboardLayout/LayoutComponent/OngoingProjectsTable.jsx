@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../dashboard.css"; // 👈 we'll use this for hiding scrollbar
+import "../../Dashboard.css"; // 👈 we'll use this for hiding scrollbar
 
 const OngoingProjectsTable = () => {
   const [projects, setProjects] = useState([]);
