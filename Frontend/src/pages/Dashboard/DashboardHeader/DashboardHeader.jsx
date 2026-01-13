@@ -91,7 +91,7 @@ const DashboardHeader = () => {
         }}
       >
         <img
-          src="/RUDA LOGO.png"
+          src="/Rudafirm.png"
           alt="RUDA Logo"
           style={{
             height: "45px",

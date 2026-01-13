@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Settings } from "lucide-react";
 
 const FinancialProgress = () => {
   return (
@@ -34,12 +34,11 @@ const FinancialProgress = () => {
           </h6>
           <span
             style={{
-              color: "#888",
-              fontSize: "1rem",
+              color: "#fff",
               cursor: "pointer",
             }}
           >
-            ⚙️
+            <Settings size={24} color="#fff" />
           </span>
         </div>
 
