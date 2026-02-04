@@ -100,6 +100,14 @@ const DashboardLayout = ({
       ? propsSetSelectedProjects
       : setLocalSelectedProjects;
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // load geojson files only when parent did not provide features
   useEffect(() => {
     if (propsFeatures !== undefined) return;
@@ -128,9 +136,9 @@ const DashboardLayout = ({
     <div
       style={{
         width: "100%",
-        // height: "calc(100vh - 60px)",
         background: "transparent",
-        overflowY: "auto", // allow vertical scrolling to reach bottom tables without changing sizes
+        overflowY: "auto",
+        padding: isMobile ? "10px" : "0",
       }}
     >
       {/* Top Section: Map + Stats (can be hidden by prop `showTop`) */}
@@ -138,10 +146,10 @@ const DashboardLayout = ({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "3fr 1fr", // Map takes more space
+            gridTemplateColumns: isMobile ? "1fr" : "3fr 1fr",
             gap: "20px",
             marginBottom: "20px",
-            height: "93vh",
+            height: isMobile ? "auto" : "93vh",
           }}
         >
           {/* Left: Map Card */}
@@ -187,12 +195,11 @@ const DashboardLayout = ({
             style={{
               background: "#1e3a5f",
               borderRadius: "12px",
-              // border: "1px solid rgba(255,255,255,0.1)",
               padding: "20px",
               height: "400px",
               overflow: "auto",
-              marginTop: "120px",
-              marginRight: "20px",
+              marginTop: isMobile ? "0" : "120px",
+              marginRight: isMobile ? "0" : "20px",
             }}
           >
             <RudaStatistics />
@@ -204,14 +211,13 @@ const DashboardLayout = ({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
+          gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
           gridTemplateRows: "repeat(2, auto)",
           gap: "20px",
-          // height: "90vh",
-          marginRight: "40px",
+          marginRight: isMobile ? "10px" : "40px",
           marginBottom: "30px",
           marginTop: "30px",
-          marginLeft: "40px",
+          marginLeft: isMobile ? "10px" : "40px",
         }}
       >
         <div

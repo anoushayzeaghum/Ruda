@@ -60,62 +60,6 @@ const HeaderButtons = () => {
         onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
       />
 
-      <div style={{ position: "relative" }} ref={menuRef}>
-        <Layers
-          size={22}
-          style={{ cursor: "pointer" }}
-          title="Layers"
-          onClick={() => setShowMenu((prev) => !prev)}
-        />
-
-        {/* 🔹 Dropdown Menu */}
-        {showMenu && (
-          <div
-            style={{
-              position: "absolute",
-              top: "30px",
-              right: 0,
-              backgroundColor: "#17193b",
-              borderRadius: "8px",
-              boxShadow: "0 0px 4px 4px #2d327139",
-              padding: "8px 0",
-              zIndex: 10000,
-              backdropFilter: "blur(8px)",
-              minWidth: "180px",
-            }}
-          >
-            {layerOptions.map((item) => (
-              <div
-                key={item.name}
-                onClick={() => {
-                  item.onClick();
-                  setShowMenu(false);
-                }}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  padding: "6px 16px",
-                  color: "#fff",
-                  fontSize: "0.85rem",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease-in-out",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor =
-                    "rgba(255,255,255,0.25)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "transparent")
-                }
-              >
-                <span>{item.name}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* <Settings size={22} style={{ cursor: "pointer" }} title="Settings" /> */}
 
       <Power

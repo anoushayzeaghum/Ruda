@@ -559,7 +559,32 @@ const DashboardSidebar = ({
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <Layers size={18} /> Layer Filters
             </div>
-            {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            <div
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)";
+                e.currentTarget.style.transform = "scale(1.15)";
+                e.currentTarget.style.opacity = "1";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.opacity = "0.8";
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "4px 6px",
+                borderRadius: "4px",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                backgroundColor: "transparent",
+                opacity: "0.8",
+              }}
+              title={isOpen ? "Click to collapse" : "Click to expand"}
+            >
+              {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </div>
           </div>
 
           {/* Dropdowns appear only when open */}

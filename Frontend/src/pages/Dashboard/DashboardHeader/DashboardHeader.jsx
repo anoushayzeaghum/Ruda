@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import HeaderButtons from "./HeaderButtons";
 import {
   Settings,
@@ -11,21 +12,23 @@ import {
   ActivitySquare,
   Route,
   Home,
+  Menu,
+  X,
 } from "lucide-react";
+import "./DashboardHeader.css";
 
 const DashboardHeader = () => {
-  const [showMenu, setShowMenu] = useState(false);
-  const menuRef = useRef(null);
+  const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
 
-  // 🔹 Close menu if clicked outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setShowMenu(false);
-      }
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 1024);
+      if (window.innerWidth > 1024) setIsMobileMenuOpen(false);
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleLogout = () => {
@@ -33,38 +36,28 @@ const DashboardHeader = () => {
     window.location.href = "/login";
   };
 
-  // 🔹 Layer options (with icons)
-  const layerOptions = [
+  // 🔹 Navigation tabs (extracted from dropdown)
+  const navTabs = [
     {
       name: "Ongoing Projects",
-      icon: <FolderKanban size={16} />,
-      onClick: () => (window.location.href = "/ongoing-projects"),
+      path: "/ongoing-projects",
+      icon: <FolderKanban size={18} />,
     },
     {
       name: "Timeline",
-      icon: <CalendarClock size={16} />,
-      onClick: () => (window.location.href = "/hierarchical-gantt"),
+      path: "/hierarchical-gantt",
+      icon: <CalendarClock size={18} />,
     },
     {
       name: "Portfolio",
-      icon: <Briefcase size={16} />,
-      onClick: () => (window.location.href = "/portfolio"),
+      path: "/portfolio",
+      icon: <Briefcase size={18} />,
     },
-    {
-      name: "Summary",
-      icon: <BarChart3 size={16} />,
-      onClick: () => (window.location.href = "/overall-summary"),
-    },
+    { name: "Summary", path: "/overall-summary", icon: <BarChart3 size={18} /> },
     {
       name: "Progress Update",
-      icon: <ActivitySquare size={16} />,
-      onClick: () => (window.location.href = "/progress-update"),
-    },
-    {
-      name: "Proposed Roads",
-      icon: <Route size={16} />,
-      onClick: () =>
-        window.dispatchEvent(new CustomEvent("toggleProposedRoads")),
+      path: "/progress-update",
+      icon: <ActivitySquare size={18} />,
     },
   ];
 
@@ -101,23 +94,60 @@ const DashboardHeader = () => {
         />
       </div>
 
-      {/* Center: Title */}
-      <p
-        style={{
-          margin: 0,
-          fontWeight: 100,
-          fontSize: "1.5rem",
-          color: "#fff",
-          position: "absolute",
-          left: "50%",
-          transform: "translateX(-50%)",
-        }}
-      >
-        RAVI URBAN DEVELOPMENT AUTHORITY
-      </p>
+      {/* Center: Navigation Tabs (Desktop Only) */}
+      {!isMobile && (
+        <div className="nav-tabs-desktop">
+          {navTabs.map((tab) => {
+            const isActive = location.pathname === tab.path;
+            return (
+              <div
+                key={tab.name}
+                onClick={() => (window.location.href = tab.path)}
+                className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}
+              >
+                {tab.icon}
+                <span>{tab.name}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-      {/* Right: Header Buttons */}
-      <HeaderButtons />
+      {/* Right: Actions & Menu Toggle */}
+      <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+        <HeaderButtons />
+
+        {isMobile && (
+          <div
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            style={{ color: "#fff", cursor: "pointer", display: "flex", alignItems: "center" }}
+          >
+            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </div>
+        )}
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobile && isMobileMenuOpen && (
+        <div className="mobile-menu">
+          {navTabs.map((tab) => {
+            const isActive = location.pathname === tab.path;
+            return (
+              <div
+                key={tab.name}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  window.location.href = tab.path;
+                }}
+                className={`mobile-nav-item ${isActive ? 'mobile-nav-item-active' : ''}`}
+              >
+                {tab.icon}
+                <span>{tab.name}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

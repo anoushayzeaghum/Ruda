@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 const Footer = () => {
   return (
@@ -13,7 +13,9 @@ const Footer = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        padding: { xs: "20px", md: "40px" },
+        padding: "8px 0",
+        gap: "12px",
+        boxShadow: "0 -1px 10px rgba(0,0,0,0.1)",
       }}
     >
       <Box
@@ -21,14 +23,22 @@ const Footer = () => {
         src="/Rudafirm.png"
         alt="Ruda Firm Logo"
         sx={{
-          maxWidth: "100%",
-          height: "auto",
-          maxHeight: { xs: "60px", md: "100px" },
+          height: "24px",
+          width: "auto",
         }}
       />
+      <Typography
+        sx={{
+          fontSize: "0.85rem",
+          fontWeight: 400,
+          letterSpacing: "1px",
+          textTransform: "uppercase",
+        }}
+      >
+        RAVI URBAN DEVELOPMENT AUTHORITY
+      </Typography>
     </Box>
   );
 };
 
 export default Footer;
-

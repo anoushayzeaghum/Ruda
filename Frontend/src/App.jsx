@@ -1,5 +1,6 @@
 import Routes from "./routes";
 import Footer from "./components/Footer";
+import SplashScreen from "./components/SplashScreen";
 import { Box } from "@mui/material";
 import { useLocation } from "react-router-dom";
 
@@ -15,6 +16,7 @@ const App = () => {
         minHeight: "100vh",
       }}
     >
+      <SplashScreen />
       <Box sx={{ flex: 1 }}>
         <Routes />
       </Box>

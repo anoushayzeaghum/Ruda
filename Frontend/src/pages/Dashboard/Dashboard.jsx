@@ -55,7 +55,18 @@ const Dashboard = () => {
     }
   };
   // Sidebar collapse state
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(window.innerWidth <= 1024);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 1024;
+      setIsMobile(mobile);
+      if (mobile) setIsSidebarCollapsed(true);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     // Load the same dataset relative to MainMap logic
@@ -104,7 +115,7 @@ const Dashboard = () => {
     >
       <DashboardHeader />
 
-      <div style={{ position: "relative", width: "100%", height: "93vh" }}>
+      <div style={{ position: "relative", width: "100%", height: isMobile ? "60vh" : "93vh" }}>
         {/* Only show Active Filters if no other side panels are obstructing */}
         {!showRudaStatistics && !showProposedRoads && (
           <SelectedFiltersChips
@@ -203,14 +214,14 @@ const Dashboard = () => {
         <div
           style={{
             position: "absolute",
-            left: isSidebarCollapsed ? -272 : 8,
-            top: 18,
+            left: isSidebarCollapsed ? (isMobile ? -300 : -272) : (isMobile ? 0 : 8),
+            top: isMobile ? 0 : 18,
             zIndex: 1200,
-            width: 280,
-            height: "92%",
+            width: isMobile ? "100%" : 280,
+            height: isMobile ? "100%" : "92%",
             overflow: "auto",
             background: "#1e3a5f",
-            borderRadius: 12,
+            borderRadius: isMobile ? 0 : 12,
             transition: "left 0.3s ease",
           }}
         >

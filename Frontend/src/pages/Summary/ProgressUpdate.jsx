@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import HeaderButtons from "../Dashboard/DashboardHeader/HeaderButtons";
+import DashboardHeader from "../Dashboard/DashboardHeader/DashboardHeader";
 import {
   Box,
   Typography,
@@ -9,6 +9,23 @@ import {
   InputLabel,
   Paper,
 } from "@mui/material";
+
+const TypewriterText = ({ text, speed = 50 }) => {
+  const [displayedText, setDisplayedText] = useState("");
+
+  useEffect(() => {
+    setDisplayedText("");
+    let i = 0;
+    const timer = setInterval(() => {
+      setDisplayedText(text.slice(0, i + 1));
+      i++;
+      if (i >= text.length) clearInterval(timer);
+    }, speed);
+    return () => clearInterval(timer);
+  }, [text, speed]);
+
+  return <>{displayedText}</>;
+};
 
 const ProgressUpdate = () => {
   const [selectedFY, setSelectedFY] = useState("24-25");
@@ -131,41 +148,43 @@ const ProgressUpdate = () => {
         padding: "0px",
       }}
     >
-      {/* Header (same like OngoingProjects) */}
+      <DashboardHeader />
+
+      {/* Page Title & Filter Row */}
       <Box
         sx={{
-          background:
-            "radial-gradient(farthest-side ellipse at 20% 0, #333867 40%, #23274b)",
-          color: "white",
-          padding: "15px 15px",
+          padding: "15px 20px",
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "center",
           alignItems: "center",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          background: "#fdfdfd",
+          borderBottom: "1px solid #eee",
+          position: "relative",
         }}
       >
-        <Box>
-          <Typography
-            component="h1"
-            sx={{
-              margin: 0,
-              fontWeight: 100,
-              fontSize: "1.5rem",
-              color: "#fff",
-              textTransform: "uppercase",
-            }}
-          >
-            Progress Update – CFY Ongoing Works
-          </Typography>
-        </Box>
+        <Typography
+          sx={{
+            fontWeight: 700,
+            fontSize: { xs: "1rem", sm: "1.2rem" },
+            color: "#1e3a5f",
+            textAlign: "center",
+          }}
+        >
+          PROGRESS UPDATE – CFY ONGOING WORKS
+        </Typography>
 
-        {/* Right side: FY filter then icons (FY stays left of icons) */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <Box sx={{ 
+          display: "flex", 
+          alignItems: "center", 
+          gap: "12px",
+          position: "absolute",
+          right: "20px",
+        }}>
           <FormControl sx={{ minWidth: 100 }}>
             <InputLabel
               shrink
               sx={{
-                color: "#fdfdfd",
+                color: "#1e3a5f",
                 fontSize: "16px",
               }}
             >
@@ -176,18 +195,13 @@ const ProgressUpdate = () => {
               value={selectedFY}
               onChange={(e) => setSelectedFY(e.target.value)}
               size="small"
-              notched={false} // ✅ IMPORTANT: notch off
               sx={{
-                color: "white",
                 height: "40px",
                 "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "#2f5379",
-                },
-                "& legend": {
-                  display: "none", // ✅ removes the line above FY
+                  borderColor: "#1e3a5f",
                 },
                 "& .MuiSvgIcon-root": {
-                  color: "white",
+                  color: "#1e3a5f",
                 },
               }}
             >
@@ -198,8 +212,6 @@ const ProgressUpdate = () => {
               ))}
             </Select>
           </FormControl>
-
-          <HeaderButtons />
         </Box>
       </Box>
 
@@ -207,14 +219,14 @@ const ProgressUpdate = () => {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: "1fr 2fr",
-          gridTemplateRows: "1fr 1fr",
+          gridTemplateColumns: { xs: "1fr", md: "1fr 2fr" },
+          gridTemplateRows: { xs: "auto", md: "1fr 1fr" },
           gap: "15px",
           marginTop: "20px",
           marginBottom: "20px",
-          marginLeft: "20px",
-          marginRight: "20px",
-          height: "calc(100vh - 220px)",
+          marginLeft: { xs: "10px", sm: "20px" },
+          marginRight: { xs: "10px", sm: "20px" },
+          height: { xs: "auto", md: "calc(100vh - 220px)" },
         }}
       >
         {/* DEV BUDGET */}
@@ -234,7 +246,7 @@ const ProgressUpdate = () => {
         >
           <Typography
             variant="subtitle2"
-            sx={{ fontSize: "28px", fontWeight: "normal" }}
+            sx={{ fontSize: { xs: "20px", sm: "28px" }, fontWeight: "normal" }}
           >
             DEV. BUDGET
           </Typography>
@@ -242,24 +254,24 @@ const ProgressUpdate = () => {
             variant="body2"
             sx={{
               marginBottom: "10px",
-              fontSize: "24px",
+              fontSize: { xs: "18px", sm: "24px" },
               fontWeight: "normal",
             }}
           >
             FY {selectedFY}
           </Typography>
-          <Typography variant="h2" sx={{ fontWeight: "normal" }}>
-            {values.devBudget.toFixed(2)} B
+          <Typography variant="h2" sx={{ fontWeight: "normal", fontSize: { xs: "2.5rem", sm: "3.75rem" } }}>
+            <TypewriterText text={`${values.devBudget.toFixed(2)} B`} />
           </Typography>
         </Box>
 
         {/* TOP ROW (Plan, Certified, Paid) */}
         <Box
           sx={{
-            gridColumn: "2 / 3",
+            gridColumn: { xs: "1 / 2", md: "2 / 3" },
             gridRow: "1 / 2",
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
             gap: "15px",
           }}
         >
@@ -288,7 +300,7 @@ const ProgressUpdate = () => {
               TILL DATE
             </Typography>
             <Typography variant="h2" sx={{ fontWeight: "normal" }}>
-              {values.plan.toFixed(2)} B
+              <TypewriterText text={`${values.plan.toFixed(2)} B`} />
             </Typography>
           </Box>
 
@@ -306,18 +318,18 @@ const ProgressUpdate = () => {
           >
             <Typography
               variant="subtitle2"
-              sx={{ fontSize: "28px", fontWeight: "normal" }}
+              sx={{ fontSize: { xs: "20px", sm: "28px" }, fontWeight: "normal" }}
             >
               CERTIFIED
             </Typography>
             <Typography
               variant="body2"
-              sx={{ fontSize: "24px", fontWeight: "normal" }}
+              sx={{ fontSize: { xs: "18px", sm: "24px" }, fontWeight: "normal" }}
             >
               TILL DATE
             </Typography>
-            <Typography variant="h2" sx={{ fontWeight: "normal" }}>
-              {values.certified.toFixed(2)} B
+            <Typography variant="h2" sx={{ fontWeight: "normal", fontSize: { xs: "2.5rem", sm: "3.75rem" } }}>
+              <TypewriterText text={`${values.certified.toFixed(2)} B`} />
             </Typography>
           </Box>
 
@@ -346,7 +358,7 @@ const ProgressUpdate = () => {
               TILL DATE
             </Typography>
             <Typography variant="h2" sx={{ fontWeight: "normal" }}>
-              {values.paid.toFixed(2)} B
+              <TypewriterText text={`${values.paid.toFixed(2)} B`} />
             </Typography>
           </Box>
         </Box>
@@ -354,10 +366,10 @@ const ProgressUpdate = () => {
         {/* BOTTOM ROW (Plan %, Actual %) */}
         <Box
           sx={{
-            gridColumn: "2 / 3",
+            gridColumn: { xs: "1 / 2", md: "2 / 3" },
             gridRow: "2 / 3",
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
             gap: "15px",
           }}
         >
@@ -386,7 +398,7 @@ const ProgressUpdate = () => {
               TILL DATE
             </Typography>
             <Typography variant="h2" sx={{ fontWeight: "normal" }}>
-              {values.planPercent}%
+              <TypewriterText text={`${values.planPercent}%`} />
             </Typography>
           </Box>
 
@@ -419,7 +431,7 @@ const ProgressUpdate = () => {
               TILL DATE
             </Typography>
             <Typography variant="h2" sx={{ fontWeight: "normal" }}>
-              {values.actualPercent}%
+              <TypewriterText text={`${values.actualPercent}%`} />
             </Typography>
           </Box>
         </Box>
@@ -429,11 +441,13 @@ const ProgressUpdate = () => {
       <Box
         sx={{
           marginBottom: "20px",
-          marginLeft: "20px",
-          marginRight: "20px",
+          marginLeft: { xs: "10px", sm: "20px" },
+          marginRight: { xs: "10px", sm: "20px" },
           display: "flex",
+          flexDirection: { xs: "column", md: "row" },
           justifyContent: "space-between",
-          alignItems: "flex-start",
+          alignItems: { xs: "stretch", md: "flex-start" },
+          gap: 2,
         }}
       >
         {/* Legend - Three rows */}
@@ -500,20 +514,26 @@ const ProgressUpdate = () => {
             color: "white",
             padding: "10px 10px",
             textAlign: "center",
-            minWidth: "700px",
+            width: "100%",
+            maxWidth: { xs: "100%", md: "700px" },
             minHeight: "80px",
           }}
         >
           <Typography
             variant="h6"
-            sx={{ fontWeight: "normal", fontSize: "28px" }}
+            sx={{ fontWeight: "normal", fontSize: { xs: "18px", sm: "28px" } }}
           >
             PERFORMANCE EFFICIENCY:{" "}
             <Box
               component="span"
-              sx={{ fontSize: "45px", fontWeight: "normal" }}
+              sx={{ fontSize: { xs: "30px", sm: "45px" }, fontWeight: "normal" }}
             >
-              {((values.actualPercent / values.planPercent) * 100).toFixed(0)}%
+              <TypewriterText
+                text={`${(
+                  (values.actualPercent / values.planPercent) *
+                  100
+                ).toFixed(0)}%`}
+              />
             </Box>
           </Typography>
         </Paper>
