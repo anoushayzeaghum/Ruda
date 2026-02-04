@@ -59,7 +59,7 @@ const Login = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       const data = await response.json();
@@ -88,11 +88,7 @@ const Login = () => {
       <div className="auth-container">
         <div className="auth-card glass">
           <div className="auth-header">
-            <img
-              src="/rudalogo.png"
-              alt="Ruda Logo"
-              className="auth-header-logo"
-            />
+            <img src="/Ruda.jpg" alt="Ruda Logo" className="auth-header-logo" />
           </div>
 
           <form onSubmit={handleSubmit} className="auth-form">
