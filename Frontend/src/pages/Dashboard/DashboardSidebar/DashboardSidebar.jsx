@@ -5,6 +5,8 @@ import {
   Settings,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Route,
   MapPin,
   Landmark,
@@ -19,6 +21,7 @@ import {
   Checkbox,
   ListItemText,
   OutlinedInput,
+  Box,
 } from "@mui/material";
 
 // Helper function to normalize phase names (removes "Ruda " prefix)
@@ -35,13 +38,13 @@ const DashboardSidebar = ({
   openLayers = true,
   setOpenLayers = undefined,
   selectedPhases = [],
-  setSelectedPhases = () => {},
+  setSelectedPhases = () => { },
   selectedPackages = [],
-  setSelectedPackages = () => {},
+  setSelectedPackages = () => { },
   selectedCategories = [],
-  setSelectedCategories = () => {},
+  setSelectedCategories = () => { },
   selectedProjects = [],
-  setSelectedProjects = () => {},
+  setSelectedProjects = () => { },
   // popup toggles
   showPhasePopups = false,
   setShowPhasePopups = undefined,
@@ -52,6 +55,12 @@ const DashboardSidebar = ({
   // control right-side RudaStatistics overlay in Dashboard
   showRudaStatistics = false,
   setShowRudaStatistics = undefined,
+  // control Proposed Roads overlay
+  showProposedRoads = false,
+  setShowProposedRoads = undefined,
+  // Sidebar collapse
+  isSidebarCollapsed = false,
+  setIsSidebarCollapsed = undefined,
   // optional style to override the root container (useful for overlaying on map)
   containerStyle = undefined,
 }) => {
@@ -63,6 +72,24 @@ const DashboardSidebar = ({
 
   // 🔹 LOCAL STATE: Ruda Boundaries dropdown
   const [selectedBoundary, setSelectedBoundary] = React.useState("");
+
+  // 🔹 Ref for Layer Controls text to change color on hover
+  const layerControlsTextRef = React.useRef(null);
+
+  // 🔹 Track if "Select All" was explicitly clicked for each dropdown
+  const selectAllClickedRef = React.useRef({
+    phases: false,
+    packages: false,
+    categories: false,
+    projects: false,
+  });
+
+  // 🔹 States to control dropdown open/close
+  const [boundaryOpen, setBoundaryOpen] = React.useState(false);
+  const [phasesOpen, setPhasesOpen] = React.useState(false);
+  const [packagesOpen, setPackagesOpen] = React.useState(false);
+  const [categoriesOpen, setCategoriesOpen] = React.useState(false);
+  const [projectsOpen, setProjectsOpen] = React.useState(false);
 
   const handleBoundaryChange = (event) => {
     const value = event.target.value;
@@ -95,6 +122,9 @@ const DashboardSidebar = ({
         detail,
       })
     );
+
+    // 🔹 Auto-close dropdown when a boundary is selected
+    setBoundaryOpen(false);
   };
 
   // 🔹 Derived dropdown options
@@ -106,13 +136,14 @@ const DashboardSidebar = ({
       if (
         name &&
         typeof name === "string" &&
+        name.trim() !== "" &&
         name.toLowerCase().startsWith("phase")
       ) {
-        setValues.add(name);
+        setValues.add(name.trim());
       }
     });
     return Array.from(setValues).sort((a, b) => {
-      // Custom sort to maintain proper phase order
+      // ...
       const order = [
         "Phase 1",
         "Phase 2A",
@@ -136,14 +167,16 @@ const DashboardSidebar = ({
           features
             .filter(
               (f) =>
-                f.properties?.name?.startsWith("RTW Package") &&
+                f.properties?.name &&
+                f.properties.name.trim() !== "" &&
+                f.properties.name.startsWith("RTW Package") &&
                 f.properties?.ruda_phase &&
                 selectedPhases.some(
                   (phase) =>
                     normalize(f.properties.ruda_phase) === normalize(phase)
                 )
             )
-            .map((f) => f.properties.name)
+            .map((f) => f.properties.name.trim())
         ),
       ].sort((a, b) => a.localeCompare(b)),
     [features, selectedPhases]
@@ -176,22 +209,35 @@ const DashboardSidebar = ({
       .map((f) => f.properties.name);
   }, [features, selectedPackages, selectedCategories]);
 
-  const renderDropdown = (label, value, setValue, options) => {
+  const renderDropdown = (label, value, setValue, options, openState, setOpenState) => {
     const isAllSelected = options.length > 0 && value.length === options.length;
+
+    // Get the key for tracking "Select All" clicks
+    const dropdownKey = label.toLowerCase().replace(/\s+/g, "");
+    const wasSelectAllClicked = selectAllClickedRef.current[dropdownKey] || false;
 
     const handleChange = (event) => {
       const selected = event.target.value;
 
       if (selected.includes("ALL")) {
+        // User explicitly clicked "Select All"
+        selectAllClickedRef.current[dropdownKey] = !isAllSelected;
         setValue(isAllSelected ? [] : options);
-      } else {
-        setValue(selected);
-      }
 
-      // 🔹 Auto-close dropdown by blurring the active element
-      const active = event.target.ownerDocument?.activeElement;
-      if (active && typeof active.blur === "function") {
-        active.blur();
+        // 🔹 Auto-close dropdown ONLY when "Select All" is chosen
+        setOpenState(false);
+      } else {
+        // User selected items individually - reset "Select All" clicked state
+        selectAllClickedRef.current[dropdownKey] = false;
+        setValue(selected);
+
+        // If all items are unchecked, also reset the state
+        if (selected.length === 0) {
+          selectAllClickedRef.current[dropdownKey] = false;
+        }
+
+        // 🔹 Auto-close dropdown when any option is chosen
+        setOpenState(false);
       }
     };
 
@@ -202,17 +248,23 @@ const DashboardSidebar = ({
         </InputLabel>
         <Select
           multiple
+          open={openState}
+          onOpen={() => setOpenState(true)}
+          onClose={() => setOpenState(false)}
           value={value}
           onChange={handleChange}
           input={<OutlinedInput label={label} />}
-          renderValue={(selected) => selected.join(", ")}
+          renderValue={(selected) =>
+            selected.length > 0 ? selected.join(", ") : ""
+          }
+          displayEmpty
           sx={{
             color: "#fff",
-            background: "rgba(255,255,255,0.05)",
+            background: "rgba(255,255,255,0.08)",
             borderRadius: "6px",
             "& .MuiSvgIcon-root": { color: "#fff" },
-            "& .MuiOutlinedInput-notchedOutline": { borderColor: "#444" },
-            "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#666" },
+            "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.2)" },
+            "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.3)" },
             height: "38px",
             display: "flex",
             alignItems: "center",
@@ -228,28 +280,63 @@ const DashboardSidebar = ({
             PaperProps: {
               sx: {
                 maxHeight: 300,
-                backgroundColor: "#1e1e1e",
+                backgroundColor: "#1e3a5f",
                 color: "#fff",
                 fontSize: "0.5rem",
+                border: "1px solid rgba(255,255,255,0.1)",
                 "& .MuiMenuItem-root": {
                   fontSize: "0.5rem",
+                  "&:hover": {
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                  },
                 },
                 "&::-webkit-scrollbar": { width: "6px" },
                 "&::-webkit-scrollbar-thumb": {
-                  backgroundColor: "#333",
+                  backgroundColor: "rgba(255,255,255,0.2)",
                   borderRadius: "4px",
                 },
               },
             },
           }}
         >
-          <MenuItem value="ALL">
-            <Checkbox
-              checked={isAllSelected}
-              indeterminate={value.length > 0 && value.length < options.length}
-              sx={{ color: "#aaa", "&.Mui-checked": { color: "#2196f3" } }}
-            />
-            <ListItemText primary="Select All" />
+          <MenuItem value="ALL" sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              {wasSelectAllClicked && isAllSelected ? (
+                // Show checked checkbox when "Select All" was explicitly clicked
+                <Checkbox
+                  checked={true}
+                  sx={{ color: "#aaa", "&.Mui-checked": { color: "#2196f3" } }}
+                />
+              ) : (
+                // Show unchecked checkbox
+                <Checkbox
+                  checked={false}
+                  sx={{ color: "#aaa", "&.Mui-checked": { color: "#2196f3" } }}
+                />
+              )}
+              <ListItemText primary="Select All" />
+            </Box>
+            {!wasSelectAllClicked && value.length > 0 && (
+              // Show count badge on the right when items are selected individually
+              <Box
+                sx={{
+                  minWidth: 24,
+                  height: 24,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "4px",
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  backgroundColor: "rgba(255,255,255,0.1)",
+                  color: "#fff",
+                  fontSize: "0.75rem",
+                  fontWeight: "bold",
+                  padding: "0 6px",
+                }}
+              >
+                {value.length}
+              </Box>
+            )}
           </MenuItem>
           {options.map((opt) => (
             <MenuItem key={opt} value={opt}>
@@ -286,7 +373,6 @@ const DashboardSidebar = ({
     display: "flex",
     flexDirection: "column",
     padding: "20px 15px",
-    fontFamily: '"Open Sans", sans-serif',
     overflowY: "auto",
     msOverflowStyle: "none", // IE / Edge
     scrollbarWidth: "none", // Firefox
@@ -294,13 +380,74 @@ const DashboardSidebar = ({
 
   return (
     <div style={{ ...rootStyle, ...(containerStyle || {}) }}>
+      {/* 🔹 Collapse/Expand Button with Layer Controls Title */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "10px",
+          paddingBottom: "8px",
+          borderBottom: "1px solid rgba(255,255,255,0.1)",
+        }}
+      >
+        <div
+          ref={layerControlsTextRef}
+          style={{
+            color: "#ffffff",
+            fontSize: "0.95rem",
+            fontWeight: "bold",
+            transition: "color 0.2s ease",
+          }}
+        >
+          Layer Controls
+        </div>
+        <div
+          onClick={() => setIsSidebarCollapsed?.(!isSidebarCollapsed)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "32px",
+            height: "32px",
+            borderRadius: "6px",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+            backgroundColor: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            color: "#ffffff",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)";
+            e.currentTarget.style.borderColor = "#1e3a5f";
+            if (layerControlsTextRef.current) {
+              layerControlsTextRef.current.style.color = "#1e3a5f";
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.05)";
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+            if (layerControlsTextRef.current) {
+              layerControlsTextRef.current.style.color = "#ffffff";
+            }
+          }}
+          title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+        >
+          {isSidebarCollapsed ? (
+            <ChevronRight size={18} />
+          ) : (
+            <ChevronLeft size={18} />
+          )}
+        </div>
+      </div>
+
       {/* 🔹 Navigation + Filters + New Buttons */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "10px",
-          marginBottom: "25px",
+          gap: isOpen ? "10px" : "4px",
+          marginBottom: "10px",
         }}
       >
         {/* 🔹 NEW: Ruda Boundaries dropdown */}
@@ -310,13 +457,12 @@ const DashboardSidebar = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "8px 10px",
+              padding: "6px 10px",
               borderRadius: "6px",
               cursor: "pointer",
               transition: "0.2s",
               color: "#fff",
               fontSize: "0.9rem",
-              marginTop: "2px",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -327,7 +473,7 @@ const DashboardSidebar = ({
           <div
             style={{
               paddingLeft: "10px",
-              marginTop: "6px",
+              marginTop: "4px",
             }}
           >
             <FormControl fullWidth>
@@ -337,6 +483,9 @@ const DashboardSidebar = ({
                 Ruda Boundaries
               </InputLabel>
               <Select
+                open={boundaryOpen}
+                onOpen={() => setBoundaryOpen(true)}
+                onClose={() => setBoundaryOpen(false)}
                 value={selectedBoundary}
                 label="Ruda Boundaries"
                 onChange={handleBoundaryChange}
@@ -373,15 +522,17 @@ const DashboardSidebar = ({
           </div>
         </div>
 
-        {/* 🔹 Separator line */}
-        <div
-          style={{
-            height: "1px",
-            background: "rgba(255, 255, 255, 0.144)",
-            margin: "0px 0",
-            borderRadius: "10px",
-          }}
-        />
+        {/* 🔹 Separator line - only show when Layer Filters is open */}
+        {isOpen && (
+          <div
+            style={{
+              height: "1px",
+              background: "rgba(255, 255, 255, 0.144)",
+              margin: "4px 0",
+              borderRadius: "10px",
+            }}
+          />
+        )}
 
         {/* Layer Filters Section */}
         <div>
@@ -391,7 +542,7 @@ const DashboardSidebar = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "8px 10px",
+              padding: "6px 10px",
               borderRadius: "6px",
               cursor: "pointer",
               transition: "0.2s",
@@ -408,7 +559,32 @@ const DashboardSidebar = ({
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <Layers size={18} /> Layer Filters
             </div>
-            {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            <div
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.15)";
+                e.currentTarget.style.transform = "scale(1.15)";
+                e.currentTarget.style.opacity = "1";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.opacity = "0.8";
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "4px 6px",
+                borderRadius: "4px",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                backgroundColor: "transparent",
+                opacity: "0.8",
+              }}
+              title={isOpen ? "Click to collapse" : "Click to expand"}
+            >
+              {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </div>
           </div>
 
           {/* Dropdowns appear only when open */}
@@ -428,25 +604,33 @@ const DashboardSidebar = ({
                 "Phases",
                 selectedPhases,
                 setSelectedPhases,
-                phaseOptions
+                phaseOptions,
+                phasesOpen,
+                setPhasesOpen
               )}
               {renderDropdown(
                 "Packages",
                 selectedPackages,
                 setSelectedPackages,
-                packageOptions
+                packageOptions,
+                packagesOpen,
+                setPackagesOpen
               )}
               {renderDropdown(
                 "Categories",
                 selectedCategories,
                 setSelectedCategories,
-                categoryOptions
+                categoryOptions,
+                categoriesOpen,
+                setCategoriesOpen
               )}
               {renderDropdown(
                 "Projects",
                 selectedProjects,
                 setSelectedProjects,
-                projectOptions
+                projectOptions,
+                projectsOpen,
+                setProjectsOpen
               )}
             </div>
           )}
@@ -458,25 +642,27 @@ const DashboardSidebar = ({
             color: "#fff",
             display: "flex",
             flexDirection: "column",
-            gap: "10px",
+            gap: "6px",
             fontSize: "0.9rem",
+            marginTop: isOpen ? "10px" : "4px",
           }}
         >
-          {/* 🔹 Separator line */}
-          <div
-            style={{
-              height: "0.5px",
-              background: "rgba(255, 255, 255, 0.144)",
-              margin: "0px 0",
-              borderRadius: "1px",
-              marginTop: "10px",
-            }}
-          />
+          {/* 🔹 Separator line - only show when Layer Filters is open */}
+          {isOpen && (
+            <div
+              style={{
+                height: "0.5px",
+                background: "rgba(255, 255, 255, 0.144)",
+                margin: "4px 0",
+                borderRadius: "1px",
+              }}
+            />
+          )}
           {/* 🔹 Project Filters dropdown (new collapsible section) */}
           {(() => {
             const [openFilters, setOpenFilters] = React.useState(false);
             return (
-              <div style={{ marginTop: 5 }}>
+              <div style={{ marginTop: openFilters ? 5 : 0 }}>
                 {/* Header with same style as Layer Filters */}
                 <div
                   onClick={() => setOpenFilters(!openFilters)}
@@ -484,7 +670,7 @@ const DashboardSidebar = ({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    padding: "8px 10px",
+                    padding: "6px 10px",
                     borderRadius: "6px",
                     cursor: "pointer",
                     transition: "0.2s",
@@ -492,8 +678,8 @@ const DashboardSidebar = ({
                     fontSize: "0.9rem",
                   }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor =
-                      "rgba(255,255,255,0.1)")
+                  (e.currentTarget.style.backgroundColor =
+                    "rgba(255,255,255,0.1)")
                   }
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.backgroundColor = "transparent")
@@ -538,21 +724,28 @@ const DashboardSidebar = ({
                         padding: "6px 8px",
                         borderRadius: "6px",
                         transition: "0.2s",
-                        backgroundColor: "rgb(54 59 97)",
+                        backgroundColor: "rgba(255,255,255,0.08)",
                       }}
                       onMouseEnter={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgba(255,255,255,0.05)")
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255,255,255,0.12)")
                       }
                       onMouseLeave={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgb(54 59 97)")
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255,255,255,0.08)")
                       }
                     >
                       <input
                         type="checkbox"
                         checked={!!showPhasePopups}
-                        onChange={(e) => setShowPhasePopups?.(e.target.checked)}
+                        onChange={(e) => {
+                          const val = e.target.checked;
+                          setShowPhasePopups?.(val);
+                          if (val) {
+                            setShowPackagePopups?.(false);
+                            setShowProjectPopups?.(false);
+                          }
+                        }}
                       />
                       Phases
                     </label>
@@ -567,23 +760,28 @@ const DashboardSidebar = ({
                         padding: "6px 8px",
                         borderRadius: "6px",
                         transition: "0.2s",
-                        backgroundColor: "rgb(54 59 97)",
+                        backgroundColor: "rgba(255,255,255,0.08)",
                       }}
                       onMouseEnter={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgba(255,255,255,0.05)")
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255,255,255,0.12)")
                       }
                       onMouseLeave={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgb(54 59 97)")
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255,255,255,0.08)")
                       }
                     >
                       <input
                         type="checkbox"
                         checked={!!showPackagePopups}
-                        onChange={(e) =>
-                          setShowPackagePopups?.(e.target.checked)
-                        }
+                        onChange={(e) => {
+                          const val = e.target.checked;
+                          setShowPackagePopups?.(val);
+                          if (val) {
+                            setShowPhasePopups?.(false);
+                            setShowProjectPopups?.(false);
+                          }
+                        }}
                       />
                       Packages
                     </label>
@@ -598,23 +796,28 @@ const DashboardSidebar = ({
                         padding: "6px 8px",
                         borderRadius: "6px",
                         transition: "0.2s",
-                        backgroundColor: "rgb(54 59 97)",
+                        backgroundColor: "rgba(255,255,255,0.08)",
                       }}
                       onMouseEnter={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgba(255,255,255,0.05)")
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255,255,255,0.12)")
                       }
                       onMouseLeave={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgb(54 59 97)")
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(255,255,255,0.08)")
                       }
                     >
                       <input
                         type="checkbox"
                         checked={!!showProjectPopups}
-                        onChange={(e) =>
-                          setShowProjectPopups?.(e.target.checked)
-                        }
+                        onChange={(e) => {
+                          const val = e.target.checked;
+                          setShowProjectPopups?.(val);
+                          if (val) {
+                            setShowPhasePopups?.(false);
+                            setShowPackagePopups?.(false);
+                          }
+                        }}
                       />
                       Projects
                     </label>
@@ -624,7 +827,7 @@ const DashboardSidebar = ({
             );
           })()}
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             {/* Ruda Statistics toggle (above Proposed Roads) */}
             <div
               style={{
@@ -632,7 +835,7 @@ const DashboardSidebar = ({
                 alignItems: "center",
                 gap: "8px",
                 cursor: "pointer",
-                padding: "8px 10px",
+                padding: "6px 10px",
                 borderRadius: "6px",
                 transition: "0.2s",
                 background: showRudaStatistics
@@ -641,8 +844,8 @@ const DashboardSidebar = ({
               }}
               onClick={() => setShowRudaStatistics?.(!showRudaStatistics)}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor =
-                  "rgba(255,255,255,0.1)")
+              (e.currentTarget.style.backgroundColor =
+                "rgba(255,255,255,0.1)")
               }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.backgroundColor = "transparent")
@@ -658,16 +861,17 @@ const DashboardSidebar = ({
                 alignItems: "center",
                 gap: "8px",
                 cursor: "pointer",
-                padding: "8px 10px",
+                padding: "6px 10px",
                 borderRadius: "6px",
                 transition: "0.2s",
+                background: showProposedRoads
+                  ? "rgba(255,255,255,0.04)"
+                  : "transparent",
               }}
-              onClick={() =>
-                window.dispatchEvent(new CustomEvent("toggleProposedRoads"))
-              }
+              onClick={() => setShowProposedRoads?.(!showProposedRoads)}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor =
-                  "rgba(255,255,255,0.1)")
+              (e.currentTarget.style.backgroundColor =
+                "rgba(255,255,255,0.1)")
               }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.backgroundColor = "transparent")

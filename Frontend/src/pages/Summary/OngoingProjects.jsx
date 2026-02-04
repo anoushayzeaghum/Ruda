@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import HeaderButtons from "../Dashboard/DashboardHeader/HeaderButtons";
+import DashboardHeader from "../Dashboard/DashboardHeader/DashboardHeader";
 
 export default function OngoingProjects() {
   const [data, setData] = useState([]);
@@ -10,6 +10,13 @@ export default function OngoingProjects() {
   const [filterValue, setFilterValue] = useState("all");
   const [expandedCategories, setExpandedCategories] = useState({});
   const scrollerRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Constants for column mapping
   const COL_BREAKDOWN = "Project Amount Breakdown \nDevelopment Works";
@@ -352,29 +359,36 @@ export default function OngoingProjects() {
 
   const controlsStyle = {
     background: "white",
-    padding: "15px 20px",
+    padding: isMobile ? "10px" : "15px 20px",
     display: "flex",
+    flexDirection: isMobile ? "column" : "row",
     gap: "15px",
-    alignItems: "center",
+    alignItems: isMobile ? "stretch" : "center",
+    justifyContent: "center",
     borderBottom: "1px solid #e2e8f0",
+    flexWrap: "wrap",
   };
 
   const searchInputStyle = {
-    flex: 1,
-    maxWidth: "1200px",
+    width: isMobile ? "100%" : "300px",
     padding: "8px 12px",
     border: "1px solid #cbd5e0",
     borderRadius: "4px",
     fontSize: "14px",
   };
 
-  const selectStyle = {
-    padding: "8px 12px",
+  const filterButtonStyle = (isActive) => ({
+    padding: "8px 16px",
     border: "1px solid #cbd5e0",
-    borderRadius: "4px",
-    fontSize: "14px",
-    minWidth: "200px",
-  };
+    borderRadius: "20px",
+    fontSize: "13px",
+    fontWeight: isActive ? 600 : 500,
+    cursor: "pointer",
+    backgroundColor: isActive ? "#1e3a5f" : "white",
+    color: isActive ? "white" : "#1e3a5f",
+    transition: "all 0.2s ease",
+    whiteSpace: "nowrap",
+  });
 
   const tableContainerStyle = {
     flex: 1,
@@ -408,22 +422,30 @@ export default function OngoingProjects() {
 
   return (
     <div style={containerStyle}>
-      {/* Header */}
-      <div style={headerStyle}>
-        <div>
-          <h1
-            style={{
-              margin: 0,
-              fontWeight: 100,
-              fontSize: "1.5rem",
-              color: "#fff",
-            }}
-          >
-            ONGOING DEVELOPMENT PROJECTS
-          </h1>
-        </div>
-        {/* Right: Header Buttons */}
-        <HeaderButtons />
+      <DashboardHeader />
+
+      {/* Page TitleRow */}
+      <div
+        style={{
+          padding: "15px 20px",
+          background: "#fff",
+          borderBottom: "1px solid #eee",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <h2
+          style={{
+            margin: 0,
+            fontSize: "1.2rem",
+            fontWeight: 700,
+            color: "#1e3a5f",
+            textAlign: "center",
+          }}
+        >
+          ONGOING DEVELOPMENT PROJECTS
+        </h2>
       </div>
 
       {/* Controls */}
@@ -435,18 +457,43 @@ export default function OngoingProjects() {
           onChange={(e) => setQuery(e.target.value)}
           style={searchInputStyle}
         />
-        <select
-          value={filterValue}
-          onChange={(e) => setFilterValue(e.target.value)}
-          style={selectStyle}
-        >
-          <option value="all">All Categories</option>
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+          <button
+            onClick={() => setFilterValue("all")}
+            style={filterButtonStyle(filterValue === "all")}
+            onMouseEnter={(e) => {
+              if (filterValue !== "all") {
+                e.currentTarget.style.backgroundColor = "#f0f0f0";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (filterValue !== "all") {
+                e.currentTarget.style.backgroundColor = "white";
+              }
+            }}
+          >
+            All Categories
+          </button>
           {getUniqueCategories().map((category) => (
-            <option key={category} value={category}>
+            <button
+              key={category}
+              onClick={() => setFilterValue(category)}
+              style={filterButtonStyle(filterValue === category)}
+              onMouseEnter={(e) => {
+                if (filterValue !== category) {
+                  e.currentTarget.style.backgroundColor = "#f0f0f0";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filterValue !== category) {
+                  e.currentTarget.style.backgroundColor = "white";
+                }
+              }}
+            >
               {category}
-            </option>
+            </button>
           ))}
-        </select>
+        </div>
       </div>
 
       {/* Table */}

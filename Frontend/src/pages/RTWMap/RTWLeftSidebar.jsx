@@ -149,7 +149,7 @@ const RTWLeftSidebar = ({
           <Card
             elevation={0}
             sx={{
-              display: { xs: showChart ? "block" : "none", md: "block" },
+              display: { xs: showChart ? "flex" : "none", md: "flex" },
               position: "absolute",
               top: { xs: 16, md: 20 },
               left: { xs: 16, md: 20 },
@@ -165,7 +165,6 @@ const RTWLeftSidebar = ({
               border: "1px solid rgba(255,255,255,0.1)",
               boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
               overflow: "hidden",
-              display: "flex",
               flexDirection: "column",
             }}
           >

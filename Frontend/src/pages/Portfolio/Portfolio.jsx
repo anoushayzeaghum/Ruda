@@ -33,7 +33,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import ProjectMilestone from "../Summary/ProjectMilestone";
 import priorityData from "./portfolioPriorityData.json";
-import HeaderButtons from "../Dashboard/DashboardHeader/HeaderButtons";
+import DashboardHeader from "../Dashboard/DashboardHeader/DashboardHeader";
 
 const API_URL = "https://ruda-planning.onrender.com/api/portfoliocrud/";
 
@@ -104,9 +104,8 @@ const Portfolio = () => {
         <div
           style={{
             ...styles.progressCircle,
-            background: `conic-gradient(${color} ${p * 3.6}deg, #e5e7eb ${
-              p * 3.6
-            }deg)`,
+            background: `conic-gradient(${color} ${p * 3.6}deg, #e5e7eb ${p * 3.6
+              }deg)`,
           }}
         >
           <div style={styles.progressInner}>
@@ -119,11 +118,11 @@ const Portfolio = () => {
   };
 
   const SustainabilityItem = ({ icon: Icon, title, subtitle, color }) => (
-    <div style={styles.sustainabilityItem}>
+    <div style={styles.sustainabilityItem} className="portfolio-sustainability-item">
       <div style={{ ...styles.sustainabilityIcon, backgroundColor: color }}>
         <Icon size={16} color="white" />
       </div>
-      <div style={styles.sustainabilityText}>
+      <div style={styles.sustainabilityText} className="portfolio-sustainability-text">
         <div style={styles.sustainabilityTitle}>{title}</div>
         <div style={styles.sustainabilitySubtitle}>{subtitle}</div>
       </div>
@@ -178,39 +177,39 @@ const Portfolio = () => {
   // Select source: live row or priorityData when toggle is ON
   const src = usePriority
     ? {
-        ...priorityData,
-        financial_total_budget: priorityData.financial_total_budget,
-      }
+      ...priorityData,
+      financial_total_budget: priorityData.financial_total_budget,
+    }
     : row;
 
   // Map DB values -> chart structures safely
   const developmentData = usePriority
     ? [
-        { name: "River Training", value: 22, color: "#2196f3" },
-        { name: "Barrage & Dam", value: 22, color: "#f55098" },
-        { name: "Infrastructure", value: 30, color: "#336819" },
-        { name: "SWM & WWTP", value: 26, color: "#ff9800" },
-      ]
+      { name: "River Training", value: 22, color: "#2196f3" },
+      { name: "Barrage & Dam", value: 22, color: "#f55098" },
+      { name: "Infrastructure", value: 30, color: "#336819" },
+      { name: "SWM & WWTP", value: 26, color: "#ff9800" },
+    ]
     : [
-        { name: "River Training", value: 15, color: "#2196f3" },
-        { name: "Barrage & Dam", value: 20, color: "#f55098" },
-        { name: "Infrastructure", value: 40, color: "#336819" },
-        { name: "SWM & WWTP", value: 25, color: "#ff9800" },
-      ];
+      { name: "River Training", value: 15, color: "#2196f3" },
+      { name: "Barrage & Dam", value: 20, color: "#f55098" },
+      { name: "Infrastructure", value: 40, color: "#336819" },
+      { name: "SWM & WWTP", value: 25, color: "#ff9800" },
+    ];
 
   // Use priority file's yearly expenditure if priority is ON, otherwise use row
   const expenditureData = usePriority
     ? (priorityData.expenditure_yearly || []).map((d) => ({
-        year: d.year,
-        amount: num(d.amount_b),
-      }))
+      year: d.year,
+      amount: num(d.amount_b),
+    }))
     : [
-        { year: "FY22-23", amount: num(row.exp_fy22_23_b) },
-        { year: "FY23-24", amount: num(row.exp_fy23_24_b) },
-        { year: "FY24-25", amount: num(row.exp_fy24_25_b) },
-        { year: "FY25-26", amount: num(row.exp_fy25_26_b) },
-        { year: "FY26-27", amount: num(row.exp_fy26_27_b) },
-      ];
+      { year: "FY22-23", amount: num(row.exp_fy22_23_b) },
+      { year: "FY23-24", amount: num(row.exp_fy23_24_b) },
+      { year: "FY24-25", amount: num(row.exp_fy24_25_b) },
+      { year: "FY25-26", amount: num(row.exp_fy25_26_b) },
+      { year: "FY26-27", amount: num(row.exp_fy26_27_b) },
+    ];
 
   const totalSpent = expenditureData
     .reduce((s, i) => s + num(i.amount), 0)
@@ -287,34 +286,46 @@ const Portfolio = () => {
   };
 
   return (
-    <div style={styles.container}>
-      {/* Header (NOW matches OngoingProjects.jsx and uses HeaderButtons.jsx) */}
-      <div style={headerStyle}>
-        <div>
-          <h1
-            style={{
-              margin: 0,
-              fontWeight: 100,
-              fontSize: "1.5rem",
-              color: "#fff",
-            }}
-          >
-            {src.title || row.title || "RUDA DEVELOPMENT PORTFOLIO"}
-          </h1>
-        </div>
+    <div style={styles.container} className="portfolio-container">
+      <DashboardHeader />
 
-        {/* Right: HeaderButtons + (Print + Priority) */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <HeaderButtons />
+      {/* Page Title & Actions Row */}
+      <div
+        style={{
+          padding: "15px 20px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          background: "#fff",
+          borderBottom: "1px solid #eee",
+          position: "relative",
+        }}
+      >
+        <h2
+          style={{
+            margin: 0,
+            fontSize: "1.2rem",
+            fontWeight: 700,
+            color: "#1e3a5f",
+            textAlign: "center",
+          }}
+        >
+          {src.title || row.title || "RUDA DEVELOPMENT PORTFOLIO"}
+        </h2>
 
+        <div style={{ 
+          display: "flex", 
+          alignItems: "center", 
+          gap: "10px",
+          position: "absolute",
+          right: "20px",
+        }}>
           <Printer
             size={22}
-            color="white"
+            color="#1e3a5f"
             style={{
               cursor: "pointer",
-              marginLeft: "10px",
-              marginRight: "10px",
-              transition: "transform 0.2s ease, color 0.2s ease",
+              transition: "transform 0.2s ease",
             }}
             title="Print"
             onClick={handleDownloadPDF}
@@ -327,7 +338,12 @@ const Portfolio = () => {
           <div
             onClick={() => setUsePriority(!usePriority)}
             title="Priority"
-            style={priorityBtnStyle}
+            style={{
+              ...priorityBtnStyle,
+              border: usePriority ? "none" : "1px solid #1e3a5f",
+              color: usePriority ? "#fff" : "#1e3a5f",
+              background: usePriority ? "#2c712e" : "transparent",
+            }}
           >
             <Star size={16} />
             Priority
@@ -341,11 +357,11 @@ const Portfolio = () => {
           isMobile
             ? { display: "flex", flexDirection: "column", gap: "16px" }
             : {
-                display: "flex",
-                flexDirection: "row",
-                gap: 16,
-                marginBottom: 24,
-              }
+              display: "flex",
+              flexDirection: "row",
+              gap: 16,
+              marginBottom: 24,
+            }
         }
       >
         {/* RAVI CITY MASTER PLAN */}
@@ -371,8 +387,8 @@ const Portfolio = () => {
           }}
           title="Click to view full Project Milestones map"
         >
-          <div style={{ width: "100%", height: "400px", overflow: "hidden" }}>
-            <ProjectMilestone />
+          <div style={{ width: "100%", height: "400px", overflow: "hidden", position: "relative" }}>
+            <ProjectMilestone embedded={true} />
           </div>
         </div>
       </div>
@@ -386,21 +402,32 @@ const Portfolio = () => {
         }
       >
         {/* DEVELOPMENT COMPONENTS */}
-        <div style={styles.card}>
+        <div style={styles.card} className="portfolio-card">
           <h2 style={styles.cardTitle}>DEVELOPMENT COMPONENTS</h2>
-          <div style={{ width: "100%", height: 300 }}>
+          <div style={{ width: "100%", height: 300, padding: "10px 0" }}>
             <ResponsiveContainer>
               <PieChart>
+                <defs>
+                  {developmentData.map((entry, index) => (
+                    <linearGradient key={`gradient-${index}`} id={`gradient-${index}`}>
+                      <stop offset="0%" stopColor={entry.color} stopOpacity={1} />
+                      <stop offset="100%" stopColor={entry.color} stopOpacity={0.7} />
+                    </linearGradient>
+                  ))}
+                </defs>
                 <Pie
                   data={developmentData}
                   dataKey="value"
                   nameKey="name"
                   cx="48%"
                   cy="50%"
-                  outerRadius={80}
+                  outerRadius={100}
+                  innerRadius={40}
+                  paddingAngle={3}
                   label={({ name, percent }) =>
                     `${name}: ${(percent * 100).toFixed(0)}%`
                   }
+                  labelLine={false}
                   onClick={(data) => {
                     const categoryName = data.name;
                     let searchQuery = "";
@@ -427,12 +454,25 @@ const Portfolio = () => {
                   {developmentData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={entry.color}
-                      style={{ cursor: "pointer" }}
+                      fill={`url(#gradient-${index})`}
+                      style={{ 
+                        cursor: "pointer",
+                        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))",
+                        transition: "all 0.3s ease"
+                      }}
                     />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value, name) => [`${value}`, name]} />
+                <Tooltip 
+                  formatter={(value, name) => [`${value}%`, name]}
+                  contentStyle={{
+                    backgroundColor: "rgba(255, 255, 255, 0.95)",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "8px",
+                    padding: "10px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+                  }}
+                />
                 <Legend
                   layout="horizontal"
                   verticalAlign="bottom"
@@ -440,11 +480,12 @@ const Portfolio = () => {
                   wrapperStyle={{
                     display: "flex",
                     justifyContent: "center",
-                    marginTop: "12px",
+                    marginTop: "20px",
                     color: "unset",
                     fontSize: "13px",
                   }}
-                  iconSize={12}
+                  iconSize={14}
+                  iconType="circle"
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -452,15 +493,15 @@ const Portfolio = () => {
         </div>
 
         {/* KEY METRICS */}
-        <div style={styles.card}>
+        <div style={styles.card} className="portfolio-card">
           <h2 style={styles.cardTitle}>KEY METRICS</h2>
-          <div style={styles.metricsGrid}>
+          <div style={styles.metricsGrid} className="portfolio-metrics-grid">
             <MetricCard
               icon={TrendingUp}
               title="Total Development Budget"
               value={`PKR ${fmtPKR(
                 src.metric_total_development_budget_pkr ||
-                  src.financial_total_budget
+                src.financial_total_budget
               )}`}
             />
             <MetricCard
@@ -484,7 +525,7 @@ const Portfolio = () => {
         </div>
 
         {/* DEVELOPMENT TIMELINES */}
-        <div style={styles.card}>
+        <div style={styles.card} className="portfolio-card">
           <h2 style={styles.cardTitle}>DEVELOPMENT TIMELINES</h2>
           <div
             style={{
@@ -571,18 +612,48 @@ const Portfolio = () => {
         }
       >
         {/* FINANCIAL OVERVIEW */}
-        <div style={styles.card}>
+        <div style={styles.card} className="portfolio-card">
           <h2 style={styles.cardTitle}>FINANCIAL OVERVIEW</h2>
-          <div style={styles.chartContainer}>
+          <div style={styles.chartContainer} className="portfolio-chart-container">
             <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={financialData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis axisLine={false} tick={false} domain={[0, "auto"]} />
-                <Tooltip formatter={(value) => fmtPKR(value)} />
-                <Bar dataKey="value">
+              <BarChart data={financialData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <defs>
                   {financialData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <linearGradient key={`barGradient-${index}`} id={`barGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={entry.color} stopOpacity={1} />
+                      <stop offset="100%" stopColor={entry.color} stopOpacity={0.6} />
+                    </linearGradient>
+                  ))}
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fill: "#4a5568", fontSize: 12, fontWeight: 500 }}
+                  axisLine={{ stroke: "#cbd5e0" }}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tick={false} 
+                  domain={[0, "auto"]}
+                />
+                <Tooltip 
+                  formatter={(value) => fmtPKR(value)}
+                  contentStyle={{
+                    backgroundColor: "rgba(255, 255, 255, 0.95)",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "8px",
+                    padding: "10px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+                  }}
+                  cursor={{ fill: "rgba(0,0,0,0.05)" }}
+                />
+                <Bar 
+                  dataKey="value" 
+                  radius={[8, 8, 0, 0]}
+                  style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }}
+                >
+                  {financialData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={`url(#barGradient-${index})`} />
                   ))}
                 </Bar>
               </BarChart>
@@ -602,7 +673,7 @@ const Portfolio = () => {
         </div>
 
         {/* FY24-25 BUDGET STATUS */}
-        <div style={styles.card}>
+        <div style={styles.card} className="portfolio-card">
           <h2 style={styles.cardTitle}>FY24-25 BUDGET STATUS</h2>
           <div style={styles.budgetContainer}>
             <div style={styles.budgetItem}>
@@ -616,6 +687,7 @@ const Portfolio = () => {
                     Math.round(plannedB * widthFactor)
                   )}px`,
                 }}
+                className="portfolio-budget-bar-3d"
               >
                 {plannedB.toFixed(2)} B
               </div>
@@ -634,6 +706,7 @@ const Portfolio = () => {
                     Math.round(certifiedB * widthFactor)
                   )}px`,
                 }}
+                className="portfolio-budget-bar-3d"
               >
                 {certifiedB.toFixed(2)} B
               </div>
@@ -649,6 +722,7 @@ const Portfolio = () => {
                   backgroundColor: "#a84320",
                   width: `${Math.max(10, Math.round(expendB * widthFactor))}px`,
                 }}
+                className="portfolio-budget-bar-3d"
               >
                 {expendB.toFixed(2)} B
               </div>
@@ -657,19 +731,49 @@ const Portfolio = () => {
         </div>
 
         {/* YEAR-WISE EXPENDITURE */}
-        <div style={styles.card}>
+        <div style={styles.card} className="portfolio-card">
           <h2 style={styles.cardTitle}>Year-wise Expenditure</h2>
-          <div style={styles.chartContainer}>
+          <div style={styles.chartContainer} className="portfolio-chart-container">
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={expenditureData}>
-                <XAxis dataKey="year" />
-                <YAxis />
-                <Tooltip formatter={(value) => `Rs. ${num(value)}B`} />
-                <Bar dataKey="amount" fill="#3b82f6">
+              <BarChart data={expenditureData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="expenditureGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
+                    <stop offset="100%" stopColor="#2563eb" stopOpacity={0.7} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                <XAxis 
+                  dataKey="year" 
+                  tick={{ fill: "#4a5568", fontSize: 12, fontWeight: 500 }}
+                  axisLine={{ stroke: "#cbd5e0" }}
+                />
+                <YAxis 
+                  tick={{ fill: "#4a5568", fontSize: 12 }}
+                  axisLine={{ stroke: "#cbd5e0" }}
+                />
+                <Tooltip 
+                  formatter={(value) => `Rs. ${num(value)}B`}
+                  contentStyle={{
+                    backgroundColor: "rgba(255, 255, 255, 0.95)",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "8px",
+                    padding: "10px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+                  }}
+                  cursor={{ fill: "rgba(0,0,0,0.05)" }}
+                />
+                <Bar 
+                  dataKey="amount" 
+                  fill="url(#expenditureGradient)"
+                  radius={[8, 8, 0, 0]}
+                  style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }}
+                >
                   <LabelList
                     dataKey="amount"
                     position="top"
                     formatter={(value) => `Rs. ${num(value)}B`}
+                    style={{ fill: "#1e3a5f", fontSize: 11, fontWeight: 600 }}
                   />
                 </Bar>
               </BarChart>
@@ -698,7 +802,7 @@ const Portfolio = () => {
         }
       >
         {/* KEY ACHIEVEMENTS */}
-        <div style={styles.card}>
+        <div style={styles.card} className="portfolio-card">
           <h2 style={styles.cardTitle}>KEY ACHIEVEMENTS</h2>
           <div style={styles.achievementsContainer}>
             <div style={styles.achievementsContent}>
@@ -714,7 +818,7 @@ const Portfolio = () => {
         </div>
 
         {/* SUSTAINABILITY HIGHLIGHTS */}
-        <div style={styles.card}>
+        <div style={styles.card} className="portfolio-card">
           <h2 style={styles.cardTitle}>SUSTAINABILITY HIGHLIGHTS</h2>
           <div
             style={
@@ -722,6 +826,7 @@ const Portfolio = () => {
                 ? { display: "flex", flexDirection: "column", gap: "12px" }
                 : styles.sustainabilityContainer
             }
+            className="portfolio-sustainability-container"
           >
             <SustainabilityItem
               icon={Droplets}

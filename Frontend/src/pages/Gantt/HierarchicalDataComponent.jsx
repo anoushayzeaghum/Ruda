@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import HeaderButtons from "../Dashboard/DashboardHeader/HeaderButtons";
+import DashboardHeader from "../Dashboard/DashboardHeader/DashboardHeader";
 /**
  * RUDA Development Plan – Timeline (Updated Design)
  * Matches the design from the provided image
@@ -44,6 +44,13 @@ export default function RUDAPlanTimeline({
   const [showPriority, setShowPriority] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
   const [showOngoing, setShowOngoing] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Initialize filters from URL query params (e.g. ?filter=ongoing)
   useEffect(() => {
@@ -419,16 +426,18 @@ export default function RUDAPlanTimeline({
 
   return (
     <div className="ruda-container">
-      {/* Header (same as OngoingProjects) */}
-      <div className="ruda-header">
+      {/* Dashboard Header (same as other pages) */}
+      <DashboardHeader />
+
+      {/* Page Title Section */}
+      <div className={`ruda-header ${isMobile ? 'mobile' : ''}`}>
         <div>
           <h1>RUDA DEVELOPMENT PLAN - TIMELINE</h1>
         </div>
-        <HeaderButtons />
       </div>
 
       {/* Controls */}
-      <div className="ruda-controls">
+      <div className={`ruda-controls ${isMobile ? 'mobile' : ''}`}>
         <select
           value={activeSheetName}
           onChange={(e) => {
@@ -546,9 +555,8 @@ export default function RUDAPlanTimeline({
                   >
                     <td className="phase-name">
                       <span
-                        className={`expand-icon ${
-                          isExpanded ? "expanded" : ""
-                        }`}
+                        className={`expand-icon ${isExpanded ? "expanded" : ""
+                          }`}
                       >
                         ▲
                       </span>
@@ -591,9 +599,8 @@ export default function RUDAPlanTimeline({
                             <td className="item-name category-name">
                               <span className="category-indent"></span>
                               <span
-                                className={`expand-icon ${
-                                  isCategoryExpanded ? "expanded" : ""
-                                }`}
+                                className={`expand-icon ${isCategoryExpanded ? "expanded" : ""
+                                  }`}
                               >
                                 ▲
                               </span>
@@ -640,9 +647,8 @@ export default function RUDAPlanTimeline({
                                     <td className="item-name sub-item">
                                       <span className="sub-item-indent"></span>
                                       <span
-                                        className={`expand-icon${
-                                          isMilestoneExpanded ? " expanded" : ""
-                                        }`}
+                                        className={`expand-icon${isMilestoneExpanded ? " expanded" : ""
+                                          }`}
                                       >
                                         &nbsp;&nbsp; ▲ &nbsp;
                                       </span>
@@ -747,22 +753,34 @@ export default function RUDAPlanTimeline({
           background: #fff;
         }
 
-        /* Header same as OngoingProjects */
+        /* Page Title Section */
         .ruda-header {
-          background: radial-gradient(farthest-side ellipse at 20% 0, #333867 40%, #23274b);
-          color: white;
-          padding: 15px 15px;
+          background: transparent;
+          color: #1e3a5f;
+          padding: 15px 20px;
           display: flex;
-          justify-content: space-between;
+          justify-content: center;
           align-items: center;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          border-bottom: 1px solid #e2e8f0;
         }
         .ruda-header h1 {
           margin: 0;
-          font-weight: 100;
-          font-size: 1.5rem;
-          color: #fff;
+          font-weight: 500;
+          font-size: 1.2rem;
+          color: #1e3a5f;
           text-transform: uppercase;
+          text-align: center;
+        }
+
+        .ruda-header.mobile {
+          flex-direction: column;
+          align-items: center;
+          gap: 15px;
+        }
+
+        .ruda-header.mobile h1 {
+          font-size: 1.1rem;
+          text-align: center;
         }
 
         /* Controls row */
@@ -775,6 +793,12 @@ export default function RUDAPlanTimeline({
           border-bottom: 1px solid #d7dee9;
         }
 
+        .ruda-controls.mobile {
+          flex-direction: column;
+          padding: 15px;
+          align-items: stretch;
+        }
+
         .sheet-select {
           padding: 8px 12px;
           border: 1px solid #cbd5e0;
@@ -785,6 +809,10 @@ export default function RUDAPlanTimeline({
           outline: none;
         }
 
+        .ruda-controls.mobile .sheet-select {
+          min-width: 100%;
+        }
+
         /* Search centered with better visibility */
         .search-wrap {
           flex: 1;
@@ -792,6 +820,11 @@ export default function RUDAPlanTimeline({
           justify-content: center;
           padding: 0 20px; /* left/right padding around search */
         }
+
+        .ruda-controls.mobile .search-wrap {
+          padding: 0;
+        }
+
         .search-input {
           width: 100%;
           max-width: 900px;
@@ -802,6 +835,22 @@ export default function RUDAPlanTimeline({
           background: white;
           outline: none;
           box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+
+        .ruda-controls.mobile .header-right {
+          width: 100%;
+        }
+
+        .ruda-controls.mobile .filter-group {
+          width: 100%;
+          display: flex;
+        }
+
+        .ruda-controls.mobile .chip-btn {
+          flex: 1;
+          text-align: center;
+          padding: 8px 5px;
+          font-size: 10px;
         }
         .search-input:focus {
           border-color: rgba(51,56,103,0.6);

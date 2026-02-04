@@ -4,6 +4,8 @@ const styles = {
     backgroundColor: "#f5f5f5",
     padding: "0px",
     fontFamily: "Arial, sans-serif",
+    display: "flex",
+    flexDirection: "column",
   },
   title: {
     fontSize: "32px",
@@ -89,11 +91,11 @@ const styles = {
 
   chartContainer: {
     display: "flex",
-    justifyContent: "flex-start", // Align chart to the left
+    justifyContent: "center",
     alignItems: "center",
-    width: "100%", // Full width of the container
-    height: "300px", // Adjust the height of the chart as necessary
-    marginLeft: "-30px", // Shift the chart slightly to the left
+    width: "100%",
+    height: "300px",
+    padding: "10px 0",
   },
 
   metricsGrid: {

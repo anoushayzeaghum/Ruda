@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import HeaderButtons from "../Dashboard/DashboardHeader/HeaderButtons";
+import DashboardHeader from "../Dashboard/DashboardHeader/DashboardHeader";
 
 export default function OverallSummary() {
   const [data, setData] = useState([]);
@@ -10,6 +10,13 @@ export default function OverallSummary() {
   const [filterValue, setFilterValue] = useState("all");
   const [expandedCategories, setExpandedCategories] = useState({});
   const scrollerRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Helper function to extract main project name
   const extractMainProjectName = (fullName) => {
@@ -392,29 +399,39 @@ export default function OverallSummary() {
 
   const controlsStyle = {
     background: "white",
-    padding: "15px 20px",
+    padding: isMobile ? "10px" : "15px 20px",
     display: "flex",
+    flexDirection: isMobile ? "column" : "row",
     gap: "15px",
-    alignItems: "center",
+    alignItems: isMobile ? "stretch" : "center",
+    justifyContent: "center",
     borderBottom: "1px solid #e2e8f0",
+    flexWrap: isMobile ? "wrap" : "nowrap",
   };
 
   const searchInputStyle = {
-    flex: 1,
-    maxWidth: "1200px",
+    width: isMobile ? "100%" : "300px",
+    minWidth: isMobile ? "100%" : "300px",
+    maxWidth: isMobile ? "100%" : "300px",
     padding: "8px 12px",
     border: "1px solid #cbd5e0",
     borderRadius: "4px",
     fontSize: "14px",
+    flexShrink: 0,
   };
 
-  const selectStyle = {
-    padding: "8px 12px",
+  const filterButtonStyle = (isActive) => ({
+    padding: "8px 16px",
     border: "1px solid #cbd5e0",
-    borderRadius: "4px",
-    fontSize: "14px",
-    minWidth: "200px",
-  };
+    borderRadius: "20px",
+    fontSize: "13px",
+    fontWeight: isActive ? 600 : 500,
+    cursor: "pointer",
+    backgroundColor: isActive ? "#1e3a5f" : "white",
+    color: isActive ? "white" : "#1e3a5f",
+    transition: "all 0.2s ease",
+    whiteSpace: "nowrap",
+  });
 
   const tableContainerStyle = {
     flex: 1,
@@ -430,7 +447,7 @@ export default function OverallSummary() {
   };
 
   const headerRowStyle = {
-    background: "#113055",
+    background: "#1e3a5f",
     color: "white",
     position: "sticky",
     top: 0,
@@ -440,32 +457,39 @@ export default function OverallSummary() {
 
   const headerCellStyle = {
     padding: "12px 28px",
-    border: "1px solid #25486b",
+    border: "1px solid #2c4a6b",
     textAlign: "center",
-    fontWeight: "normal",
+    fontWeight: "600",
     fontSize: "14px",
     verticalAlign: "middle",
   };
 
   return (
     <div style={containerStyle}>
-      {/* Header (same like OngoingProjects) */}
-      <div style={headerStyle}>
-        <div>
-          <h1
-            style={{
-              margin: 0,
-              fontWeight: 100,
-              fontSize: "1.5rem",
-              color: "#fff",
-            }}
-          >
-            OVERALL SUMMARY
-          </h1>
-        </div>
+      <DashboardHeader />
 
-        {/* Right: Header Buttons */}
-        <HeaderButtons />
+      {/* Page TitleRow */}
+      <div
+        style={{
+          padding: "15px 20px",
+          background: "#fff",
+          borderBottom: "1px solid #eee",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <h2
+          style={{
+            margin: 0,
+            fontSize: "1.2rem",
+            fontWeight: 700,
+            color: "#1e3a5f",
+            textAlign: "center",
+          }}
+        >
+          OVERALL SUMMARY
+        </h2>
       </div>
 
       {/* Controls */}
@@ -477,18 +501,50 @@ export default function OverallSummary() {
           onChange={(e) => setQuery(e.target.value)}
           style={searchInputStyle}
         />
-        <select
-          value={filterValue}
-          onChange={(e) => setFilterValue(e.target.value)}
-          style={selectStyle}
-        >
-          <option value="all">All Categories</option>
+        <div style={{ 
+          display: "flex", 
+          gap: "10px", 
+          flexWrap: "wrap", 
+          alignItems: "center",
+          flexShrink: 1,
+          minWidth: 0,
+        }}>
+          <button
+            onClick={() => setFilterValue("all")}
+            style={filterButtonStyle(filterValue === "all")}
+            onMouseEnter={(e) => {
+              if (filterValue !== "all") {
+                e.currentTarget.style.backgroundColor = "#f0f0f0";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (filterValue !== "all") {
+                e.currentTarget.style.backgroundColor = "white";
+              }
+            }}
+          >
+            All Categories
+          </button>
           {getUniqueCategories().map((category) => (
-            <option key={category} value={category}>
+            <button
+              key={category}
+              onClick={() => setFilterValue(category)}
+              style={filterButtonStyle(filterValue === category)}
+              onMouseEnter={(e) => {
+                if (filterValue !== category) {
+                  e.currentTarget.style.backgroundColor = "#f0f0f0";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filterValue !== category) {
+                  e.currentTarget.style.backgroundColor = "white";
+                }
+              }}
+            >
               {category}
-            </option>
+            </button>
           ))}
-        </select>
+        </div>
       </div>
 
       {/* Table */}
@@ -569,19 +625,26 @@ export default function OverallSummary() {
                       {/* Category Header Row */}
                       <tr
                         style={{
-                          background: "#2d3748",
-                          color: "white",
+                          background: "#f7fafc",
+                          color: "#1e3a5f",
                           cursor: "pointer",
                           fontSize: "16px",
+                          borderLeft: "4px solid #1e3a5f",
                         }}
                         onClick={() => toggleCategory(category)}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "#edf2f7";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "#f7fafc";
+                        }}
                       >
                         <td
                           colSpan="5"
                           style={{
                             padding: "12px 15px",
-                            border: "1px solid #25486b",
-                            fontWeight: "normal",
+                            border: "1px solid #e2e8f0",
+                            fontWeight: "600",
                             fontSize: "14px",
                             textAlign: "left",
                           }}
@@ -802,11 +865,9 @@ export default function OverallSummary() {
                                       height: "80px",
                                       position: "relative",
                                       borderRadius: "50%",
-                                      background: `conic-gradient(#56c159 0deg ${
-                                        project.landStatus.available * 3.6
-                                      }deg, #e92719 ${
-                                        project.landStatus.available * 3.6
-                                      }deg 360deg)`,
+                                      background: `conic-gradient(#56c159 0deg ${project.landStatus.available * 3.6
+                                        }deg, #e92719 ${project.landStatus.available * 3.6
+                                        }deg 360deg)`,
                                     }}
                                   >
                                     <div

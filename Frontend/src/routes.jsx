@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import DashboardRTWExact from "./pages/RTWMap/DashboardRTW";
-import RTWMap from "./pages/RTWMap/DashboardRTW";
+import RTWMap from "./pages/RTWMap/RTWMap";
 import Portfolio from "./pages/Portfolio/Portfolio";
 import RUDADevelopmentPlan from "./pages/Gantt/RUDADevelopmentPlan";
 import PhaseTwoGanttChart from "./pages/Gantt/PhaseTwoGanttChart";
